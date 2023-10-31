@@ -38,7 +38,6 @@ while True:
         json_token = json.loads(tokenResponse.text)
         
         tempRequest = [{
-            "user_id":1,
             "fieldName":"bodyTemperature",
             "value": mlx.object_temperature
         }]
