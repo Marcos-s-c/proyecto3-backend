@@ -1,10 +1,10 @@
-package com.sistema.examenes;
+package com.sistema.venus;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SistemaExamenesBackendApplicationTests {
+class VenusApplicationTests {
 
 	@Test
 	void contextLoads() {
