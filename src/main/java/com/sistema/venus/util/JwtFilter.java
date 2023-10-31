@@ -1,4 +1,4 @@
-package com.sistema.venus.security;
+package com.sistema.venus.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
