@@ -46,4 +46,9 @@ public class UserService implements UserDetailsService {
         user.setRol(Constants.USER_ROLE);
         return userRepository.save(user);
     }
+
+    public String generaRandom(){
+
+        return "random";
+    }
 }

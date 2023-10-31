@@ -3,9 +3,8 @@ package com.sistema.venus.controller;
 import com.sendgrid.*;
 import com.sendgrid.helpers.mail.*;
 import com.sendgrid.helpers.mail.objects.*;
-import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.UserRepository;
-import com.sistema.venus.servicios.UserService;
+import com.sistema.venus.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +41,7 @@ public class UserController {
         Email from = new Email("correo_en_espera");
         String subject = "Prueba de venus";
         Email to = new Email(email);
+        //Content content = new Content("text/plain", "Codigo Generado: ");
         Content content = new Content("text/plain", "Codigo Generado: " + userService.generaRandom());
         Mail mail = new Mail(from, subject, to, content);
 
