@@ -3,6 +3,7 @@ package com.sistema.venus.controller;
 import com.sistema.venus.domain.LoginRequest;
 import com.sistema.venus.domain.LoginResponse;
 import com.sistema.venus.domain.User;
+import com.sistema.venus.services.AuthService;
 import com.sistema.venus.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,11 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AuthService authService;
     @PostMapping(value = "login")
     public ResponseEntity login(@RequestBody LoginRequest loginRequest)  {
 
         try {
-            LoginResponse loginRes = userService.getToken(loginRequest);
+            LoginResponse loginRes = authService.getToken(loginRequest);
 
             return ResponseEntity.ok(loginRes);
 
