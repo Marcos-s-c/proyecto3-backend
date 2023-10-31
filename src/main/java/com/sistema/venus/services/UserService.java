@@ -18,10 +18,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService implements UserDetailsService {
     @Autowired
-    private JwtUtils jwtUtil;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
     private UserRepository userRepository;
 
     @Override
@@ -31,15 +27,7 @@ public class UserService implements UserDetailsService {
                 .username(user.getEmail())
                 .password(user.getPassword())
                 .roles(user.getRol())
-                .build();}
-
-    public LoginResponse getToken(LoginRequest loginRequest) {
-        Authentication authentication =
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-        String email = authentication.getName();
-        User user = new User(email);
-        String token = jwtUtil.createToken(user);
-        return new LoginResponse(token);
+                .build();
     }
 
     public User createUser(User user) {
