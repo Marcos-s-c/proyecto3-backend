@@ -33,7 +33,7 @@ public class AuthController {
             throw e;
         }
     }
-    @PostMapping(value = "login")
+    @PostMapping(value = "register")
     public ResponseEntity register(@RequestBody User user)  {
         try {
             return ResponseEntity.ok(userService.createUser(user));
