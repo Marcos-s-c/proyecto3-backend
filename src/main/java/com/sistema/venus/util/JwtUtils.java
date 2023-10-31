@@ -1,4 +1,4 @@
-package com.sistema.venus.security;
+package com.sistema.venus.util;
 
 import com.sistema.venus.domain.User;
 import io.jsonwebtoken.*;

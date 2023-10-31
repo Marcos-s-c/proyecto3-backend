@@ -1,6 +1,6 @@
-package com.sistema.venus.security;
+package com.sistema.venus.util;
 
-import com.sistema.venus.servicios.UserService;
+import com.sistema.venus.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -12,7 +11,6 @@ import java.time.LocalDate;
 @Table(name = "users")
 @NoArgsConstructor
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long user_id;
@@ -20,6 +18,7 @@ public class User {
     private String password;
     private String name;
     private String rol;
+    @Column(columnDefinition = "boolean default true")
     private Boolean active;
     private LocalDate dob;
     private Double weight;
