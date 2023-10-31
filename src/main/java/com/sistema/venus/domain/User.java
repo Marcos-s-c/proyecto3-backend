@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -13,12 +15,17 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long user_id;
     private String email;
     private String password;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String rol;
+    private Boolean active;
+    private LocalDate dob;
+    private Double weight;
+    private Double height;
+    private String phone;
+
 
     public User(String email){
         this.email = email;
