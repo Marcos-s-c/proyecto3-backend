@@ -21,4 +21,9 @@ public class UserService implements UserDetailsService {
                 .password(user.getPassword())
                 .roles(user.getRol())
                 .build();}
+
+    public String generaRandom(){
+
+        return "random";
+    }
 }
