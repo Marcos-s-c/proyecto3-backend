@@ -1,6 +1,5 @@
-package com.sistema.venus.servicios;
+package com.sistema.venus.services;
 
-import com.sistema.venus.controller.PeriodCriteriaController;
 import com.sistema.venus.domain.PeriodCriteria;
 import com.sistema.venus.repo.PeriodCriteriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;

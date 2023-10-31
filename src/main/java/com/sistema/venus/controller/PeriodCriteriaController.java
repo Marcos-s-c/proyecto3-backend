@@ -1,7 +1,7 @@
 package com.sistema.venus.controller;
 
 import com.sistema.venus.domain.PeriodCriteria;
-import com.sistema.venus.servicios.PeriodCriteriaService;
+import com.sistema.venus.services.PeriodCriteriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
