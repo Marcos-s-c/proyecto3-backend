@@ -7,17 +7,16 @@ import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
-import com.sistema.venus.domain.LoginRequest;
-import com.sistema.venus.domain.LoginResponse;
-import com.sistema.venus.domain.RecuperaContraReqBody;
-import com.sistema.venus.domain.User;
+import com.sistema.venus.domain.*;
 import com.sistema.venus.services.AuthService;
+import com.sistema.venus.services.OtpsService;
 import com.sistema.venus.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -31,6 +30,9 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private OtpsService otpsService;
 
     @Value("${spring.sendgrid.api-key}")
     private String sendGridApiKey;
@@ -61,12 +63,16 @@ public class AuthController {
 
     @GetMapping(value = "/recuperaContra")
     public ResponseEntity<String> recuperarContra(@RequestBody RecuperaContraReqBody body) throws IOException {
+        String userId = userService.getIdByEmail(body.getEmail());
+        Otps otps = new Otps();
+        otps.setId(Long.parseLong(userId));
+
         String result = "";
-        Email from = new Email("fretanah@ucenfotec.ac.cr");
+        Email from = new Email("squirosv@ucenfotec.ac.cr");
         String subject = "Prueba de venus";
         Email to = new Email(body.getEmail());
         //Content content = new Content("text/plain", "Codigo Generado: ");
-        Content content = new Content("text/plain", "Codigo Generado: " + userService.generaRandom());
+        Content content = new Content("text/plain", "Codigo Generado: ");
         Mail mail = new Mail(from, subject, to, content);
 
         SendGrid sg = new SendGrid(System.getenv(sendGridApiKey));
@@ -76,12 +82,13 @@ public class AuthController {
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
             Response response = sg.api(request);
-            System.out.println(response.getStatusCode());
-            System.out.println(response.getBody());
-            System.out.println(response.getHeaders());
-            result = "Exito " + body.getEmail() ;
+//            System.out.println(response.getStatusCode());
+//            System.out.println(response.getBody());
+//            System.out.println(response.getHeaders());
+            result = "Exito id"  + userId;
+            otpsService.addOtps(otps);
         } catch (IOException ex) {
-            result = "Fallo " + body.getEmail();
+            result = "Fallo id"  + userId;
             throw ex;
         }
         return ResponseEntity.of(Optional.of(result));

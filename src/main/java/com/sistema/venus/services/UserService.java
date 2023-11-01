@@ -35,8 +35,9 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    public String generaRandom(){
 
-        return "random";
+
+    public String getIdByEmail(String email){
+        return userRepository.findIdByEmail(email);
     }
 }

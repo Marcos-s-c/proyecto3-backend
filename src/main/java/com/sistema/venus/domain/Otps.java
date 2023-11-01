@@ -17,6 +17,7 @@ public class Otps {
     private Long id;
     private Long user_id;
     private LocalDateTime tiempoExpiracion;
+    private String codigo;
 
     public void setId(Long id) {
         this.id = id;
