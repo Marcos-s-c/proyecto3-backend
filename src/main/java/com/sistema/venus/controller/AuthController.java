@@ -65,7 +65,8 @@ public class AuthController {
     public ResponseEntity<String> recuperarContra(@RequestBody RecuperaContraReqBody body) throws IOException {
         String userId = userService.getIdByEmail(body.getEmail());
         Otps otps = new Otps();
-        otps.setId(Long.parseLong(userId));
+
+        otps.setUser_id(Long.parseLong(userId));
 
         String result = "";
         Email from = new Email("squirosv@ucenfotec.ac.cr");
