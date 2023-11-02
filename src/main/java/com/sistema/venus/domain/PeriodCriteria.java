@@ -26,5 +26,4 @@ public class PeriodCriteria {
     private String fieldName;
     private String value;
     private LocalDate date;
-
 }
