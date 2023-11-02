@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class OtpsService {
 
     @Autowired
-    OtpsRepository otpsRepository;
+    private OtpsRepository otpsRepository;
 
     @Value("${codigo.recuperacion.contra.length}")
     private int length;
@@ -45,5 +45,7 @@ public class OtpsService {
         return codigo.toString();
     }
 
-
+    public Otps getOtpsByUserCode(String userCode){
+        return otpsRepository.getOtpsByCodigo(userCode);
+    }
 }

@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OtpsRepository extends JpaRepository<Otps, Long> {
+    Otps getOtpsByCodigo(String userCode);
 }
