@@ -20,7 +20,7 @@ public class PeriodCriteriaService {
 
     public PeriodCriteria createPeriodCriteria(PeriodCriteria periodCriteria){
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        periodCriteria.setDate(LocalDate.now());
+        if(periodCriteria.getDate()==null)periodCriteria.setDate(LocalDate.now());
         periodCriteria.setUserId(user);
         return periodCriteriaRepository.save(periodCriteria);
     }
