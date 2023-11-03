@@ -26,11 +26,12 @@ import java.util.Properties;
 @Service
 public class AuthService {
 
+    @Value("${frontend.host}")
+    String frontendHost;
+
     @Autowired
     private OtpsService otpsService;
 
-    @Value("${spring.sendgrid.api-key}")
-    private String sendGridApiKey;
     @Autowired
     private JwtUtils jwtUtil;
 
@@ -52,9 +53,10 @@ public class AuthService {
     public ResponseEntity<String> sendEmail(RecuperaContraReqBody body) throws IOException {
         try {
             Long userId = userService.getIdByEmail(body.getEmail());
+            if(userId == null) return ResponseEntity.ok("Success");
             Otps otps = new Otps();
             otps.setUser_id(userId);
-            otpsService.addOtps(otps);
+            String codigo =  otpsService.addOtps(otps).getCodigo();
             Properties properties = new Properties();
             properties.put("mail.smtp.host", "smtp.gmail.com");
             properties.put("mail.smtp.port", "587");
@@ -71,6 +73,10 @@ public class AuthService {
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(body.getEmail()));
             message.setSubject("This is the email subject");
             message.setText("This is the email body");
+            String htmlBody = String.format("<p>Hola,</p><br/>" +
+                    "<p>Visite este enlace para recuperar la contraseña:</p><br/>" +
+                    "<a href='%s/password_reset/%s'>%s/password_reset/%s<a>",frontendHost, codigo,  frontendHost, codigo);
+            message.setContent(htmlBody, "text/html");
             Transport.send(message);
             return ResponseEntity.ok("Success");
         } catch (Exception e) {
@@ -88,4 +94,5 @@ public class AuthService {
             throw new ValidationException("Expired password change code");
         }
     }
+
 }
