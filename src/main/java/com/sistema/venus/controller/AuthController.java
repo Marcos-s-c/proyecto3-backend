@@ -30,6 +30,12 @@ public class AuthController {
     public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
         try {
             LoginResponse loginRes = authService.getToken(loginRequest);
+
+            if (!userService.isUserActive(loginRequest.getEmail())) {
+                // Usuario no encontrado o no activo
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "A sido baneado del sistema"));
+            }
+
             UserDetails userDetails = userService.loadUserByUsername(loginRequest.getEmail());
 
             // Combina la respuesta de inicio de sesión con los detalles del usuario en un mapa
@@ -39,7 +45,7 @@ public class AuthController {
 
             return ResponseEntity.ok(responseMap);
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.singletonMap("error", "Credenciales inválidas"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "Credenciales inválidas"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Ocurrió un error en el servidor"));
         }
@@ -49,6 +55,7 @@ public class AuthController {
     public ResponseEntity<Object> register(@RequestBody User user) {
         try {
             user.setRol(Constants.USER_ROLE);
+            user.setActive(true);
             User savedUser = userService.saveUser(user);
             return ResponseEntity.ok(savedUser);
         } catch (RuntimeException e) {

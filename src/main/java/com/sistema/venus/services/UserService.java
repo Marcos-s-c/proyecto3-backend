@@ -43,4 +43,9 @@ public class UserService implements UserDetailsService {
         User existingUser = userRepository.findUserByEmail(email);
         return existingUser != null;
     }
+
+    public boolean isUserActive(String email) {
+        User user = userRepository.findUserByEmail(email);
+        return user != null && user.getActive();
+    }
 }
