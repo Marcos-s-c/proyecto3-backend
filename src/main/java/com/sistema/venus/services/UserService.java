@@ -24,6 +24,11 @@ public class UserService implements UserDetailsService {
     }
 
     public User saveUser(User user) {
+        // Verifica si el correo ya está en uso
+        if (isEmailInUse(user.getEmail())) {
+            throw new RuntimeException("El correo ya está en uso.");
+        }
+
         return userRepository.save(user);
     }
 
@@ -33,5 +38,9 @@ public class UserService implements UserDetailsService {
 
     public Long getIdByEmail(String email){
         return userRepository.findIdByEmail(email);
+    }
+    public boolean isEmailInUse(String email) {
+        User existingUser = userRepository.findUserByEmail(email);
+        return existingUser != null;
     }
 }

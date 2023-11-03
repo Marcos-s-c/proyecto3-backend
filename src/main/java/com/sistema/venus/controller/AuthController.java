@@ -46,15 +46,18 @@ public class AuthController {
     }
 
     @PostMapping(value = "register")
-    public ResponseEntity register(@RequestBody User user)  {
+    public ResponseEntity<Object> register(@RequestBody User user) {
         try {
             user.setRol(Constants.USER_ROLE);
-            return ResponseEntity.ok(userService.saveUser(user));
-        }catch (Exception e){
-            e.printStackTrace();
-            throw e;
+            User savedUser = userService.saveUser(user);
+            return ResponseEntity.ok(savedUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Ocurrió un error en el servidor"));
         }
     }
+
 
     @PostMapping (value = "/enviarCorreoReset")
     public ResponseEntity<Map<String, String>> enviarCorreoReset(@RequestBody RecuperaContraReqBody body) {
