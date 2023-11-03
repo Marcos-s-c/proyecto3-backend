@@ -31,7 +31,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findUserByUser_id(userId);
     }
 
-    public String getIdByEmail(String email){
+    public Long getIdByEmail(String email){
         return userRepository.findIdByEmail(email);
     }
 }

@@ -51,6 +51,10 @@ public class AuthService {
 
     public ResponseEntity<String> sendEmail(RecuperaContraReqBody body) throws IOException {
         try {
+            Long userId = userService.getIdByEmail(body.getEmail());
+            Otps otps = new Otps();
+            otps.setUser_id(userId);
+            otpsService.addOtps(otps);
             Properties properties = new Properties();
             properties.put("mail.smtp.host", "smtp.gmail.com");
             properties.put("mail.smtp.port", "587");

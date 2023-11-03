@@ -20,15 +20,9 @@ public class OtpsService {
 
 
     public Otps addOtps(Otps _otps){
-        _otps.setTiempoExpiracion(tiempoExpiracion());
+        _otps.setTiempoExpiracion(LocalDateTime.now());
         _otps.setCodigo(generaRandom());
         return otpsRepository.save(_otps);
-    }
-
-    private LocalDateTime tiempoExpiracion(){
-        LocalDateTime fechaActual = LocalDateTime.now();
-        LocalDateTime fechaMas15 = fechaActual.plusMinutes(15);
-        return fechaMas15;
     }
 
     private String generaRandom(){
