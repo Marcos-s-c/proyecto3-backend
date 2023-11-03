@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.xml.bind.ValidationException;
@@ -26,16 +27,20 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping(value = "login")
-    public ResponseEntity login(@RequestBody LoginRequest loginRequest)  {
-
+    public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
         try {
             LoginResponse loginRes = authService.getToken(loginRequest);
+            UserDetails userDetails = userService.loadUserByUsername(loginRequest.getEmail());
 
-            return ResponseEntity.ok(loginRes);
+            // Combina la respuesta de inicio de sesión con los detalles del usuario en un mapa
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("token", loginRes.getToken());
+            responseMap.put("user", userDetails);
 
-        }catch (BadCredentialsException e){
+            return ResponseEntity.ok(responseMap);
+        } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
@@ -51,7 +56,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping(value = "/enviarCorreoReset")
+    @PostMapping (value = "/enviarCorreoReset")
     public ResponseEntity<Map<String, String>> enviarCorreoReset(@RequestBody RecuperaContraReqBody body) {
         try {
             // Supongamos que authService.sendEmail devuelve un mensaje de éxito
@@ -64,17 +69,18 @@ public class AuthController {
     }
 
 
-    @GetMapping(value = "/recuperarContra")
-    public ResponseEntity<String> recuperarContra(@RequestBody PasswordResetChangeRequest body) {
-        try{
+    @PostMapping(value = "/recuperarContra")
+    public ResponseEntity<Map<String, String>> recuperarContra(@RequestBody PasswordResetChangeRequest body) {
+        try {
             authService.passwordChange(body);
-            return ResponseEntity.ok("Success");
-        }
-        catch (ValidationException e){
-            return ResponseEntity.internalServerError().body(e.getMessage());
-        }
-        catch (Exception e){
-            return ResponseEntity.internalServerError().body("An Error has occurred sending the password reset email");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Success");
+            return ResponseEntity.ok(response);
+        } catch (ValidationException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "An Error has occurred sending the password reset email"));
         }
     }
+
 }
