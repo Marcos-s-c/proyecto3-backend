@@ -22,24 +22,37 @@ public class AuthController {
     public ResponseEntity login(@RequestBody LoginRequest loginRequest)  {
 
         try {
-            LoginResponse loginRes = userService.getToken(loginRequest);
+            LoginResponse loginRes = authService.getToken(loginRequest);
+
+            if (!userService.isUserActive(loginRequest.getEmail())) {
+                // Usuario no encontrado o no activo
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "A sido baneado del sistema"));
+            }
+
+            UserDetails userDetails = userService.loadUserByUsername(loginRequest.getEmail());
 
             return ResponseEntity.ok(loginRes);
 
-        }catch (BadCredentialsException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
-            e.printStackTrace();
-            throw e;
+            return ResponseEntity.ok(responseMap);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "Credenciales inválidas"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Ocurrió un error en el servidor"));
         }
     }
+
+
     @PostMapping(value = "register")
     public ResponseEntity register(@RequestBody User user)  {
         try {
-            return ResponseEntity.ok(userService.createUser(user));
-        }catch (Exception e){
-            e.printStackTrace();
-            throw e;
+            user.setRol(Constants.USER_ROLE);
+            user.setActive(true);
+            User savedUser = userService.saveUser(user);
+            return ResponseEntity.ok(savedUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Ocurrió un error en el servidor"));
         }
     }
 }

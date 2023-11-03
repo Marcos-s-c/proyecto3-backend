@@ -46,4 +46,21 @@ public class UserService implements UserDetailsService {
         user.setRol(Constants.USER_ROLE);
         return userRepository.save(user);
     }
+
+    public User getUserById(Long userId){
+        return userRepository.findUserByUser_id(userId);
+    }
+
+    public Long getIdByEmail(String email){
+        return userRepository.findIdByEmail(email);
+    }
+    public boolean isEmailInUse(String email) {
+        User existingUser = userRepository.findUserByEmail(email);
+        return existingUser != null;
+    }
+
+    public boolean isUserActive(String email) {
+        User user = userRepository.findUserByEmail(email);
+        return user != null && user.getActive();
+    }
 }
