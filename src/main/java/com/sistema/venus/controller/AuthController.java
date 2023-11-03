@@ -11,9 +11,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.xml.bind.ValidationException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/rest/auth")
+@CrossOrigin("*")
 public class AuthController {
     @Autowired
     private UserService userService;
@@ -47,14 +51,18 @@ public class AuthController {
         }
     }
 
-    @GetMapping(value = "/enviarCorreoReset")
-    public ResponseEntity<String> enviarCorreoReset(@RequestBody RecuperaContraReqBody body) {
-        try{
-            return authService.sendEmail(body);
-        }catch (Exception e){
-            return ResponseEntity.internalServerError().body("An Error has occurred sending the password reset email");
+    @PostMapping(value = "/enviarCorreoReset")
+    public ResponseEntity<Map<String, String>> enviarCorreoReset(@RequestBody RecuperaContraReqBody body) {
+        try {
+            // Supongamos que authService.sendEmail devuelve un mensaje de éxito
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Success");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Collections.singletonMap("error", "An Error has occurred sending the password reset email"));
         }
     }
+
 
     @GetMapping(value = "/recuperarContra")
     public ResponseEntity<String> recuperarContra(@RequestBody PasswordResetChangeRequest body) {
