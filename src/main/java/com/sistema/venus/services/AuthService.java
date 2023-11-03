@@ -17,11 +17,18 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.Properties;
 
 @Service
 public class AuthService {
@@ -39,6 +46,7 @@ public class AuthService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
     public LoginResponse getToken(LoginRequest loginRequest) {
         Authentication authentication =
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
@@ -49,36 +57,37 @@ public class AuthService {
     }
 
     public ResponseEntity<String> sendEmail(RecuperaContraReqBody body) throws IOException {
-        String userId = userService.getIdByEmail(body.getEmail());
-        Otps otps = new Otps();
+        try {
+            Properties properties = new Properties();
+            properties.put("mail.smtp.host", "smtp.gmail.com");
+            properties.put("mail.smtp.port", "587");
+            properties.put("mail.smtp.starttls.enable", "true");
+            properties.put("mail.smtp.auth", "true");
+            Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication("venus49117413@gmail.com", "utga reaz otcq vucf");
+                }
+            });
 
-        otps.setUser_id(Long.parseLong(userId));
-
-        String result = "";
-        Email from = new Email("squirosv@ucenfotec.ac.cr");
-        String subject = "Prueba de venus";
-        Email to = new Email(body.getEmail());
-        Content content = new Content("text/plain", "Codigo Generado: ");
-        Mail mail = new Mail(from, subject, to, content);
-
-        SendGrid sg = new SendGrid(System.getenv(sendGridApiKey));
-        Request request = new Request();
-        request.setMethod(Method.POST);
-        request.setEndpoint("mail/send");
-        request.setBody(mail.build());
-        Response response = sg.api(request);
-        result = "Success: "  + userId;
-        otpsService.addOtps(otps);
-        return ResponseEntity.of(Optional.of(result));
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress("venus49117413@gmail.com"));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(body.getEmail()));
+            message.setSubject("This is the email subject");
+            message.setText("This is the email body");
+            Transport.send(message);
+            return ResponseEntity.ok("Success");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
-    public void passwordChange(PasswordResetChangeRequest body) throws ValidationException{
+    public void passwordChange(PasswordResetChangeRequest body) throws ValidationException {
         Otps otps = otpsService.getOtpsByUserCode(body.getUserCode());
-        if(LocalDateTime.now().isAfter(otps.getTiempoExpiracion().plusMinutes(15))){
+        if (LocalDateTime.now().isAfter(otps.getTiempoExpiracion().plusMinutes(15))) {
             User user = userService.getUserById(otps.getUser_id());
             user.setPassword(body.getNewPassword());
             userService.saveUser(user);
-        }else{
+        } else {
             throw new ValidationException("Expired password change code");
         }
     }

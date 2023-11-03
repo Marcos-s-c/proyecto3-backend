@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Query("SELECT u.user_id FROM User u WHERE u.email = :email")
     String findIdByEmail(@Param("email") String email);
 
+    @Query("SELECT u FROM User u WHERE u.user_id = :userId")
     User findUserByUser_id(Long userId);
 
-    //select user_id from users where email =: 'gabriela@gmail.com'
 }

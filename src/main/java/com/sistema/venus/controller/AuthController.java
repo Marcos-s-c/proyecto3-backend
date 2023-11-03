@@ -56,7 +56,7 @@ public class AuthController {
         }
     }
 
-    @GetMapping(value = "/")
+    @GetMapping(value = "/recuperarContra")
     public ResponseEntity<String> recuperarContra(@RequestBody PasswordResetChangeRequest body) {
         try{
             authService.passwordChange(body);
