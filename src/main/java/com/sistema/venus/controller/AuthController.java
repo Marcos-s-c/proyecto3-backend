@@ -39,12 +39,12 @@ public class AuthController {
 
             return ResponseEntity.ok(responseMap);
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.singletonMap("error", "Credenciales inválidas"));
         } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Ocurrió un error en el servidor"));
         }
     }
+
     @PostMapping(value = "register")
     public ResponseEntity register(@RequestBody User user)  {
         try {
