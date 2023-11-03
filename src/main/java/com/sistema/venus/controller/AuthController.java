@@ -1,23 +1,19 @@
 package com.sistema.venus.controller;
 
-import com.sistema.venus.domain.LoginRequest;
-import com.sistema.venus.domain.LoginResponse;
-import com.sistema.venus.domain.User;
+import com.sistema.venus.domain.*;
 import com.sistema.venus.services.AuthService;
 import com.sistema.venus.services.UserService;
+import com.sistema.venus.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.xml.bind.ValidationException;
 
 @RestController
 @RequestMapping("/rest/auth")
-@CrossOrigin("*")
 public class AuthController {
     @Autowired
     private UserService userService;
@@ -26,37 +22,51 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping(value = "login")
-    public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity login(@RequestBody LoginRequest loginRequest)  {
 
         try {
-            // Autenticar al usuario
             LoginResponse loginRes = authService.getToken(loginRequest);
 
-            // Cargar información adicional del usuario
-            UserDetails userDetails = userService.loadUserByUsername(loginRequest.getEmail());
+            return ResponseEntity.ok(loginRes);
 
-            // Combina la respuesta de inicio de sesión con los detalles del usuario en un mapa
-            Map<String, Object> responseMap = new HashMap<>();
-            responseMap.put("token", loginRes.getToken());
-            responseMap.put("user", userDetails);
-
-            return ResponseEntity.ok(responseMap);
-
-        } catch (BadCredentialsException e) {
+        }catch (BadCredentialsException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    @PostMapping(value = "register")
+    public ResponseEntity register(@RequestBody User user)  {
+        try {
+            user.setRol(Constants.USER_ROLE);
+            return ResponseEntity.ok(userService.saveUser(user));
+        }catch (Exception e){
             e.printStackTrace();
             throw e;
         }
     }
 
-    @PostMapping(value = "register")
-    public ResponseEntity register(@RequestBody User user) {
-        try {
-            return ResponseEntity.ok(userService.createUser(user));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+    @GetMapping(value = "/enviarCorreoReset")
+    public ResponseEntity<String> enviarCorreoReset(@RequestBody RecuperaContraReqBody body) {
+        try{
+            return authService.sendEmail(body);
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().body("An Error has occurred sending the password reset email");
+        }
+    }
+
+    @GetMapping(value = "/recuperarContra")
+    public ResponseEntity<String> recuperarContra(@RequestBody PasswordResetChangeRequest body) {
+        try{
+            authService.passwordChange(body);
+            return ResponseEntity.ok("Success");
+        }
+        catch (ValidationException e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+        catch (Exception e){
+            return ResponseEntity.internalServerError().body("An Error has occurred sending the password reset email");
         }
     }
 }
