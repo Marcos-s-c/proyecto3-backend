@@ -5,6 +5,8 @@ import com.sistema.venus.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -40,6 +42,8 @@ public class AuthService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     public LoginResponse getToken(LoginRequest loginRequest) {
         Authentication authentication =
@@ -57,27 +61,13 @@ public class AuthService {
             Otps otps = new Otps();
             otps.setUser_id(userId);
             String codigo =  otpsService.addOtps(otps).getCodigo();
-            Properties properties = new Properties();
-            properties.put("mail.smtp.host", "smtp.gmail.com");
-            properties.put("mail.smtp.port", "587");
-            properties.put("mail.smtp.starttls.enable", "true");
-            properties.put("mail.smtp.auth", "true");
-            Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication("venus49117413@gmail.com", "utga reaz otcq vucf");
-                }
-            });
-
-            MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("venus49117413@gmail.com"));
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(body.getEmail()));
-            message.setSubject("This is the email subject");
-            message.setText("This is the email body");
-            String htmlBody = String.format("<p>Hola,</p><br/>" +
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(body.getEmail());
+            message.setSubject("Soporte Venus");
+            message.setText(String.format("<p>Hola,</p><br/>" +
                     "<p>Visite este enlace para recuperar la contraseña:</p><br/>" +
-                    "<a href='%s/password_reset/%s'>%s/password_reset/%s<a>",frontendHost, codigo,  frontendHost, codigo);
-            message.setContent(htmlBody, "text/html");
-            Transport.send(message);
+                    "<a href='%s/password_reset/%s'>%s/password_reset/%s<a>",frontendHost, codigo,  frontendHost, codigo));
+            javaMailSender.send(message);
             return ResponseEntity.ok("Success");
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();

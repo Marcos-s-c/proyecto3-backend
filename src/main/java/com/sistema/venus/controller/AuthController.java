@@ -74,6 +74,7 @@ public class AuthController {
             response.put("message", "Success");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError().body(Collections.singletonMap("error", "An Error has occurred sending the password reset email"));
         }
     }
