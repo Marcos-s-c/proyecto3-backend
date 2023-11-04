@@ -64,9 +64,9 @@ public class AuthService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(body.getEmail());
             message.setSubject("Soporte Venus");
-            message.setText(String.format("<p>Hola,</p><br/>" +
-                    "<p>Visite este enlace para recuperar la contraseña:</p><br/>" +
-                    "<a href='%s/password_reset/%s'>%s/password_reset/%s<a>",frontendHost, codigo,  frontendHost, codigo));
+            message.setText(String.format("Hola,\n" +
+                    "Visite este enlace para recuperar la contraseña:\n" +
+                    "%s/password_reset/%s",frontendHost, codigo));
             javaMailSender.send(message);
             return ResponseEntity.ok("Success");
         } catch (Exception e) {
