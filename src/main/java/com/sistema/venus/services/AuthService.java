@@ -76,7 +76,7 @@ public class AuthService {
 
     public void passwordChange(PasswordResetChangeRequest body) throws ValidationException {
         Otps otps = otpsService.getOtpsByUserCode(body.getUserCode());
-        if (LocalDateTime.now().isAfter(otps.getTiempoExpiracion().plusMinutes(15))) {
+        if (!LocalDateTime.now().isAfter(otps.getTiempoExpiracion().plusMinutes(15))) {
             User user = userService.getUserById(otps.getUser_id());
             user.setPassword(body.getNewPassword());
             userService.saveUser(user);

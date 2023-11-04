@@ -24,11 +24,6 @@ public class UserService implements UserDetailsService {
     }
 
     public User saveUser(User user) {
-        // Verifica si el correo ya está en uso
-        if (isEmailInUse(user.getEmail())) {
-            throw new RuntimeException("El correo ya está en uso.");
-        }
-
         return userRepository.save(user);
     }
 

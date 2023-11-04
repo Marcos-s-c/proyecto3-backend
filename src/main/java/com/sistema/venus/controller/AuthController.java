@@ -54,6 +54,9 @@ public class AuthController {
     @PostMapping(value = "register")
     public ResponseEntity<Object> register(@RequestBody User user) {
         try {
+            if (userService.isEmailInUse(user.getEmail())) {
+                throw new RuntimeException("El correo ya está en uso.");
+            }
             user.setRol(Constants.USER_ROLE);
             user.setActive(true);
             User savedUser = userService.saveUser(user);
@@ -88,8 +91,10 @@ public class AuthController {
             response.put("message", "Success");
             return ResponseEntity.ok(response);
         } catch (ValidationException e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", e.getMessage()));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "An Error has occurred sending the password reset email"));
         }
     }
