@@ -54,7 +54,7 @@ public class AuthService {
         return new LoginResponse(token);
     }
 
-    public ResponseEntity<String> sendEmail(RecuperaContraReqBody body) throws IOException {
+    public ResponseEntity<String> sendEmail(RecuperaContraReqBody body) {
         try {
             Long userId = userService.getIdByEmail(body.getEmail());
             if(userId == null) return ResponseEntity.ok("Success");
