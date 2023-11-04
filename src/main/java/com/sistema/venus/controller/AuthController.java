@@ -58,7 +58,6 @@ public class AuthController {
                 throw new RuntimeException("El correo ya está en uso.");
             }
             user.setRol(Constants.USER_ROLE);
-            user.setActive(true);
             User savedUser = userService.saveUser(user);
             return ResponseEntity.ok(savedUser);
         } catch (RuntimeException e) {

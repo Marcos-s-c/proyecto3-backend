@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/rest/period-criteria")
 public class PeriodCriteriaController {
     @Autowired
@@ -17,7 +18,7 @@ public class PeriodCriteriaController {
     @PostMapping(value = "create")
     public ResponseEntity<String> createPeriodCriteria(@RequestBody List<PeriodCriteria> periodCriteria){
         try{
-            periodCriteria.forEach(criteria -> periodCriteriaService.createPeriodCriteria(criteria));
+            periodCriteria.forEach(criteria -> periodCriteriaService.savePeriodCriteria(criteria));
             return ResponseEntity.of(Optional.of("Success"));
         }catch (Exception e){
             e.printStackTrace();

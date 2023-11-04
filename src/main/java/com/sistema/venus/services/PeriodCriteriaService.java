@@ -17,9 +17,14 @@ public class PeriodCriteriaService {
     @Autowired
     private UserRepository userRepository;
 
-    public PeriodCriteria createPeriodCriteria(PeriodCriteria periodCriteria){
-        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+    public PeriodCriteria savePeriodCriteria(PeriodCriteria periodCriteria){
         if(periodCriteria.getDate()==null)periodCriteria.setDate(LocalDate.now());
+        PeriodCriteria existingPeriodCriteria = periodCriteriaRepository.getPeriodCriteriaByDateAndFieldName(periodCriteria.getDate(),periodCriteria.getFieldName());
+        if(existingPeriodCriteria!=null){
+            existingPeriodCriteria.setValue(periodCriteria.getValue());
+            return periodCriteriaRepository.save(existingPeriodCriteria);
+        }
+        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         periodCriteria.setUserId(user);
         return periodCriteriaRepository.save(periodCriteria);
     }
