@@ -31,8 +31,8 @@ while True:
     if(boton.value == False):
         ib.pixel = AZUL
         login_request = {
-            "email": "pedro",
-            "password":"test123"
+            "email": "mmendezr@ucenfotec.ac.cr",
+            "password":"graciela"
         }
         tokenResponse = https.post('https://venus-api.azurewebsites.net/rest/auth/login',json=login_request)
 
