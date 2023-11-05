@@ -54,12 +54,7 @@ public class AuthController {
     @PostMapping(value = "register")
     public ResponseEntity<Object> register(@RequestBody User user) {
         try {
-            if (userService.isEmailInUse(user.getEmail())) {
-                throw new RuntimeException("El correo ya está en uso.");
-            }
-            user.setRol(Constants.USER_ROLE);
-            User savedUser = userService.saveUser(user);
-            return ResponseEntity.ok(savedUser);
+            return authService.registerUser(user);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         } catch (Exception e) {

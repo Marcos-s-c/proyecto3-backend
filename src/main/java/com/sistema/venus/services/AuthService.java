@@ -1,6 +1,7 @@
 package com.sistema.venus.services;
 
 import com.sistema.venus.domain.*;
+import com.sistema.venus.util.Constants;
 import com.sistema.venus.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,6 +84,16 @@ public class AuthService {
         } else {
             throw new ValidationException("Expired password change code");
         }
+    }
+
+    public ResponseEntity<Object> registerUser(User user) {
+        if (userService.isEmailInUse(user.getEmail())) {
+            throw new RuntimeException("El correo ya está en uso.");
+        }
+        user.setRol(Constants.USER_ROLE);
+        user.setActive(true);
+        User savedUser = userService.saveUser(user);
+        return ResponseEntity.ok(savedUser);
     }
 
 }
