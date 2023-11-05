@@ -9,6 +9,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 public class PeriodCriteriaService {
@@ -17,16 +19,21 @@ public class PeriodCriteriaService {
     @Autowired
     private UserRepository userRepository;
 
+    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
     public PeriodCriteria savePeriodCriteria(PeriodCriteria periodCriteria){
+        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         if(periodCriteria.getDate()==null)periodCriteria.setDate(LocalDate.now());
-        PeriodCriteria existingPeriodCriteria = periodCriteriaRepository.getPeriodCriteriaByDateAndFieldName(periodCriteria.getDate(),periodCriteria.getFieldName());
+        PeriodCriteria existingPeriodCriteria = periodCriteriaRepository.getPeriodCriteriaByDateAndFieldName(periodCriteria.getDate(),periodCriteria.getFieldName(),user.getUser_id());
         if(existingPeriodCriteria!=null){
             existingPeriodCriteria.setValue(periodCriteria.getValue());
             return periodCriteriaRepository.save(existingPeriodCriteria);
         }
-        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         periodCriteria.setUserId(user);
         return periodCriteriaRepository.save(periodCriteria);
     }
 
+    public List<PeriodCriteria> getPeriodCriteriaByDate(String localDate){
+        return periodCriteriaRepository.getPeriodCriteriaByDate(LocalDate.parse(localDate,dateTimeFormatter));
+    }
 }
