@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -15,10 +17,12 @@ import java.util.Optional;
 public class UserController {
 
     @GetMapping(value = "logout")
-    public ResponseEntity<String> logout(){
+    public ResponseEntity<Object> logout(){
         try{
             SecurityContextHolder.clearContext();
-            return ResponseEntity.of(Optional.of("Success"));
+            Map<String,Boolean> map = new HashMap<>();
+            map.put("Success",true);
+            return ResponseEntity.of(Optional.of(map));
         }catch (Exception e){
             e.printStackTrace();
             throw e;

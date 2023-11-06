@@ -51,7 +51,7 @@ while True:
 
 
         tempRequest = [{
-            "fieldName":"bodyTemperature",
+            "fieldName":"temperature",
             "value": caputuredTemperature
         }]
         
