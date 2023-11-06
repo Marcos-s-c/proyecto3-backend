@@ -43,8 +43,8 @@ while True:
             "Authorization":"Bearer {token}".format(token = json_token["token"]),
         }
 
-        caputuredTemperature = mlx.object_temperature
-        if caputuredTemperature<35 or caputuredTemperature>42:
+        capturedTemperature = mlx.object_temperature
+        if capturedTemperature<35 or capturedTemperature>42:
             ib.pixel = RED
             print("Invalid Temperature, please try again")
             continue
@@ -52,15 +52,16 @@ while True:
 
         tempRequest = [{
             "fieldName":"temperature",
-            "value": caputuredTemperature
+            "value": "{:.2f}".format(capturedTemperature)
         }]
-        
+
         tempResponse = https.post('https://venus-api.azurewebsites.net/rest/period-criteria/create',
                                   json=tempRequest,headers=headers)
         if tempResponse.status_code == 200:
             print('Request was successful!')
-            print(tempResponse.text)  
+            print(tempResponse.text)
         else:
             print('Request failed with status code:', tempResponse.status_code)
         ib.pixel = NEGRO
+
 
