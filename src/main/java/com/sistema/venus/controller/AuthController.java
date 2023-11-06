@@ -66,7 +66,7 @@ public class AuthController {
     @PostMapping (value = "/enviarCorreoReset")
     public ResponseEntity<Map<String, String>> enviarCorreoReset(@RequestBody RecuperaContraReqBody body) {
         try {
-            authService.sendEmail(body);
+            authService.sendEmailSendGrid(body);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Success");
             return ResponseEntity.ok(response);
