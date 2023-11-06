@@ -49,7 +49,7 @@ while True:
             print("Invalid Temperature, please try again")
             continue
 
-
+        print("TEMPERATURA {:.2f}".format(capturedTemperature))
         tempRequest = [{
             "fieldName":"temperature",
             "value": "{:.2f}".format(capturedTemperature)
