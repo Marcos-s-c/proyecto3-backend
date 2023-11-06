@@ -1,49 +1,96 @@
 package com.sistema.venus.controller;
 
-import com.sistema.venus.domain.LoginRequest;
-import com.sistema.venus.domain.LoginResponse;
-import com.sistema.venus.domain.User;
+import com.sistema.venus.domain.*;
 import com.sistema.venus.services.AuthService;
 import com.sistema.venus.services.UserService;
+import com.sistema.venus.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
+
+import javax.xml.bind.ValidationException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/rest/auth")
+@CrossOrigin("*")
 public class AuthController {
     @Autowired
     private UserService userService;
 
     @Autowired
     private AuthService authService;
-    @PostMapping(value = "login")
-    public ResponseEntity login(@RequestBody LoginRequest loginRequest)  {
 
+    @PostMapping(value = "login")
+    public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
         try {
             LoginResponse loginRes = authService.getToken(loginRequest);
 
-            return ResponseEntity.ok(loginRes);
+            if (!userService.isUserActive(loginRequest.getEmail())) {
+                // Usuario no encontrado o no activo
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "A sido baneado del sistema"));
+            }
 
-        }catch (BadCredentialsException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
-            e.printStackTrace();
-            throw e;
+            UserDetails userDetails = userService.loadUserByUsername(loginRequest.getEmail());
+
+            // Combina la respuesta de inicio de sesión con los detalles del usuario en un mapa
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("token", loginRes.getToken());
+            responseMap.put("user", userDetails);
+
+            return ResponseEntity.ok(responseMap);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "Credenciales inválidas"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Ocurrió un error en el servidor"));
         }
     }
+
     @PostMapping(value = "register")
-    public ResponseEntity register(@RequestBody User user)  {
+    public ResponseEntity<Object> register(@RequestBody User user) {
         try {
-            return ResponseEntity.ok(userService.createUser(user));
-        }catch (Exception e){
-            e.printStackTrace();
-            throw e;
+            return authService.registerUser(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Ocurrió un error en el servidor"));
         }
     }
+
+
+    @PostMapping (value = "/enviarCorreoReset")
+    public ResponseEntity<Map<String, String>> enviarCorreoReset(@RequestBody RecuperaContraReqBody body) {
+        try {
+            authService.sendEmail(body);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Success");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(Collections.singletonMap("error", "An Error has occurred sending the password reset email"));
+        }
+    }
+
+
+    @PostMapping(value = "/recuperarContra")
+    public ResponseEntity<Map<String, String>> recuperarContra(@RequestBody PasswordResetChangeRequest body) {
+        try {
+            authService.passwordChange(body);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Success");
+            return ResponseEntity.ok(response);
+        } catch (ValidationException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "An Error has occurred sending the password reset email"));
+        }
+    }
+
 }

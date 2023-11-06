@@ -1,15 +1,8 @@
 package com.sistema.venus.services;
 
-import com.sistema.venus.domain.LoginRequest;
-import com.sistema.venus.domain.LoginResponse;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.UserRepository;
-import com.sistema.venus.util.Constants;
-import com.sistema.venus.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,13 +23,24 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    public User createUser(User user) {
-        user.setRol(Constants.USER_ROLE);
+    public User saveUser(User user) {
         return userRepository.save(user);
     }
 
-    public String generaRandom(){
+    public User getUserById(Long userId){
+        return userRepository.findUserByUser_id(userId);
+    }
 
-        return "random";
+    public Long getIdByEmail(String email){
+        return userRepository.findIdByEmail(email);
+    }
+    public boolean isEmailInUse(String email) {
+        User existingUser = userRepository.findUserByEmail(email);
+        return existingUser != null;
+    }
+
+    public boolean isUserActive(String email) {
+        User user = userRepository.findUserByEmail(email);
+        return user != null && user.getActive();
     }
 }

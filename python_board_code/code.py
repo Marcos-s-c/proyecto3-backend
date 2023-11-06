@@ -25,33 +25,43 @@ boton = ib.DigitalIn(board.IO27)
 
 AZUL = (0,0,255)
 NEGRO = (0,0,0)
+RED = (255,0,0)
 
 while True:
     if(boton.value == False):
         ib.pixel = AZUL
         login_request = {
-            "email": "pedro",
-            "password":"test123"
+            "email": "mmendezr@ucenfotec.ac.cr",
+            "password":"graciela"
         }
         tokenResponse = https.post('https://venus-api.azurewebsites.net/rest/auth/login',json=login_request)
-        
+
         json_token = json.loads(tokenResponse.text)
-        
-        tempRequest = [{
-            "fieldName":"bodyTemperature",
-            "value": mlx.object_temperature
-        }]
-        
+
+
         headers = {
             "Authorization":"Bearer {token}".format(token = json_token["token"]),
         }
-        
+
+        capturedTemperature = mlx.object_temperature
+        if capturedTemperature<35 or capturedTemperature>42:
+            ib.pixel = RED
+            print("Invalid Temperature, please try again")
+            continue
+
+        print("TEMPERATURA {:.2f}".format(capturedTemperature))
+        tempRequest = [{
+            "fieldName":"temperature",
+            "value": "{:.2f}".format(capturedTemperature)
+        }]
+
         tempResponse = https.post('https://venus-api.azurewebsites.net/rest/period-criteria/create',
                                   json=tempRequest,headers=headers)
         if tempResponse.status_code == 200:
             print('Request was successful!')
-            print(tempResponse.text)  
+            print(tempResponse.text)
         else:
             print('Request failed with status code:', tempResponse.status_code)
         ib.pixel = NEGRO
+
 
