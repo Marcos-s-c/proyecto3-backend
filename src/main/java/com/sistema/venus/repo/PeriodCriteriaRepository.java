@@ -13,4 +13,7 @@ public interface PeriodCriteriaRepository extends JpaRepository<PeriodCriteria,L
 
     @Query("SELECT p FROM PeriodCriteria p JOIN p.userId u WHERE p.date = :date and u.user_id = :userId")
     List<PeriodCriteria> getPeriodCriteriaByDate(LocalDate date, Long userId);
+
+    @Query("SELECT p FROM PeriodCriteria p JOIN p.userId u WHERE  u.user_id = :userId")
+    List<PeriodCriteria> getPeriodCriteriaByUserId(Long userId);
 }

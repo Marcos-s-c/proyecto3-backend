@@ -41,4 +41,10 @@ public class PeriodCriteriaService {
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         return periodCriteriaRepository.getPeriodCriteriaByDate(LocalDate.parse(localDate,dateTimeFormatter),user.getUser_id());
     }
+
+    public List<PeriodCriteria> getPeriodCriteriaByUser(){
+        User user = userRepository.findUserByEmail((SecurityContextHolder.getContext().getAuthentication().getName()));
+
+        return periodCriteriaRepository.getPeriodCriteriaByUserId(Long.parseLong(user.getUser_id().toString()));
+    }
 }
