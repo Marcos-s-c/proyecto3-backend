@@ -35,34 +35,46 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
 
-    public void savePost(MultipartFile file, String subject, String content) throws IOException {
+    public void savePost(String postId, MultipartFile file, String subject, String content) throws IOException {
         postRepository.save(Post.builder()
+                .postId(postId!=null ? Long.valueOf(postId):null)
                 .subject(subject)
                 .content(content)
-                .imageUrl(getImageUrl(file))
+                .imageUrl(getImageUrl(file,postId))
                 .build());
     }
 
-    private String getImageUrl(MultipartFile file) throws IOException {
+    public Post getPostById(Long postId) {
+        return postRepository.getPostByPostId(postId);
+    }
+
+    private String getImageUrl(MultipartFile file, String postId) throws IOException {
         try{
-            if(file==null) return null;
-            File tempFile =  new File(String.format("%s\\%s-%s",tempFolder,System.currentTimeMillis(), file.getOriginalFilename()));
-            Files.write(tempFile.toPath(), file.getBytes());
-
-            MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
-            entityBuilder.addBinaryBody("file",tempFile, ContentType.DEFAULT_BINARY, LocalDateTime.now().toString());
-            entityBuilder.addPart("upload_preset",new StringBody(cloudinaryPreset,ContentType.TEXT_PLAIN));
-
-            HttpPost request = new HttpPost(cloudinaryUrl);
-            request.setEntity(entityBuilder.build());
-            HttpResponse response = new DefaultHttpClient().execute(request);
-
-            tempFile.delete();
-            String url = objectMapper.readValue(EntityUtils.toString(response.getEntity(),"UTF-8"), JsonNode.class).get("secure_url").toString();
-            return url.substring(1,url.length()-1);
+            if(postId!=null && file==null){
+                return postRepository.getPostByPostId(Long.valueOf(postId)).getImageUrl();
+            }
+            return getCloudinaryUrl(file);
         }catch (Exception e){
             e.printStackTrace();
             throw e;
         }
+    }
+
+    private String getCloudinaryUrl(MultipartFile file) throws IOException {
+        if(file==null) return null;
+        File tempFile =  new File(String.format("%s\\%s-%s",tempFolder,System.currentTimeMillis(), file.getOriginalFilename()));
+        Files.write(tempFile.toPath(), file.getBytes());
+
+        MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+        entityBuilder.addBinaryBody("file",tempFile, ContentType.DEFAULT_BINARY, LocalDateTime.now().toString());
+        entityBuilder.addPart("upload_preset",new StringBody(cloudinaryPreset,ContentType.TEXT_PLAIN));
+
+        HttpPost request = new HttpPost(cloudinaryUrl);
+        request.setEntity(entityBuilder.build());
+        HttpResponse response = new DefaultHttpClient().execute(request);
+
+        tempFile.delete();
+        String url = objectMapper.readValue(EntityUtils.toString(response.getEntity(),"UTF-8"), JsonNode.class).get("secure_url").toString();
+        return url.substring(1, url.length() - 1);
     }
 }
