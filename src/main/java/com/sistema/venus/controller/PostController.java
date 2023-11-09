@@ -1,5 +1,6 @@
 package com.sistema.venus.controller;
 
+import com.sistema.venus.domain.Post;
 import com.sistema.venus.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -31,4 +33,13 @@ public class PostController {
         }
     }
 
+    @GetMapping("getAllPosts")
+    public List<Post> getAllPosts(){
+        try {
+            return postService.getAllPosts();
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }

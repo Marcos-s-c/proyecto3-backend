@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class PostService {
@@ -64,5 +65,9 @@ public class PostService {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    public List<Post> getAllPosts(){
+        return postRepository.findAll();
     }
 }
