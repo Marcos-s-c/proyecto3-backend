@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Service
 public class UserService implements UserDetailsService {
     @Autowired
@@ -45,6 +47,12 @@ public class UserService implements UserDetailsService {
     }
 
     public User findUserByEmail(String email){
-        return  userRepository.findUserByEmail(email);
+        return userRepository.findUserByEmail(email);
     }
+
+    @Transactional
+    public int actualizar(User user){
+        return userRepository.actualizar(user.getEmail(), user.getName(), user.getPhone());
+    }
+
 }
