@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,15 +21,16 @@ public class PostController {
     @Autowired
     private PostService postService;
     @PostMapping(value = "create")
-    public ResponseEntity<Object> create(@RequestPart(name="postId",required = false)String postId, @RequestPart(name = "file", required = false) MultipartFile file,@RequestPart("subject") String subject,@RequestPart("content") String content) throws IOException {
+    public ResponseEntity<Object> create(@RequestPart(name="postId",required = false) String postId, @RequestPart(name = "file", required = false) MultipartFile file,@RequestPart("subject") String subject,@RequestPart("content") String content) throws IOException, ValidationException {
         try{
             postService.savePost(postId, file,subject,content);
             Map<String,Boolean> map = new HashMap<>();
             map.put("Success",true);
             return ResponseEntity.of(Optional.of(map));
+        }catch (ValidationException e){
+            return ResponseEntity.internalServerError().body(Optional.of(e));
         }catch (Exception e){
-            e.printStackTrace();
-            throw e;
+            return ResponseEntity.internalServerError().body(Optional.of("Ha ocurrido un error salvando el post"));
         }
     }
 
@@ -41,5 +43,4 @@ public class PostController {
             throw e;
         }
     }
-
 }

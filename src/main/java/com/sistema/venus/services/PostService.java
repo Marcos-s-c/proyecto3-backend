@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,13 +36,17 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
 
-    public void savePost(String postId, MultipartFile file, String subject, String content) throws IOException {
-        postRepository.save(Post.builder()
-                .postId(postId!=null ? Long.valueOf(postId):null)
-                .subject(subject)
-                .content(content)
-                .imageUrl(getImageUrl(file,postId))
-                .build());
+    public void savePost(String postId, MultipartFile file, String subject, String content) throws IOException, ValidationException {
+        if(postRepository.findAll().stream().noneMatch(post -> post.getSubject().equals(subject) && postId != null && !post.getPostId().equals(Long.valueOf(postId)))){
+            postRepository.save(Post.builder()
+                    .postId(postId!=null ? Long.valueOf(postId):null)
+                    .subject(subject)
+                    .content(content)
+                    .imageUrl(getImageUrl(file,postId))
+                    .build());
+        }else{
+            throw new ValidationException("Ya existe un post con ese asunto.");
+        }
     }
 
     public Post getPostById(Long postId) {
