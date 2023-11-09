@@ -13,19 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import javax.mail.Message;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.xml.bind.ValidationException;
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.Optional;
-import java.util.Properties;
-
 @Service
 public class AuthService {
 
@@ -95,5 +84,4 @@ public class AuthService {
         User savedUser = userService.saveUser(user);
         return ResponseEntity.ok(savedUser);
     }
-
 }

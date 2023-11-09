@@ -14,12 +14,12 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/rest/auth")
+@RequestMapping("/rest/post")
 public class PostController {
     @Autowired
     private PostService postService;
     @PostMapping(value = "create")
-    public ResponseEntity<Object> create(@RequestPart("file") MultipartFile file,@RequestPart("subject") String subject,@RequestPart("content") String content) throws IOException {
+    public ResponseEntity<Object> create(@RequestPart(name = "file", required = false) MultipartFile file,@RequestPart("subject") String subject,@RequestPart("content") String content) throws IOException {
         try{
             postService.savePost(file,subject,content);
             Map<String,Boolean> map = new HashMap<>();

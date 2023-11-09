@@ -32,7 +32,6 @@ public class PostService {
     private String cloudinaryUrl;
     @Autowired
     private ObjectMapper objectMapper;
-
     @Autowired
     private PostRepository postRepository;
 
@@ -46,6 +45,7 @@ public class PostService {
 
     private String getImageUrl(MultipartFile file) throws IOException {
         try{
+            if(file==null) return null;
             File tempFile =  new File(String.format("%s\\%s-%s",tempFolder,System.currentTimeMillis(), file.getOriginalFilename()));
             Files.write(tempFile.toPath(), file.getBytes());
 
