@@ -36,12 +36,14 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "A sido baneado del sistema"));
             }
 
-            UserDetails userDetails = userService.loadUserByUsername(loginRequest.getEmail());
+            //UserDetails userDetails = userService.loadUserByUsername(loginRequest.getEmail());
+            User user = userService.findUserByEmail(loginRequest.getEmail());
+            user.setPassword(null);
 
             // Combina la respuesta de inicio de sesión con los detalles del usuario en un mapa
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("token", loginRes.getToken());
-            responseMap.put("user", userDetails);
+            responseMap.put("user", user);
 
             return ResponseEntity.ok(responseMap);
         } catch (BadCredentialsException e) {
