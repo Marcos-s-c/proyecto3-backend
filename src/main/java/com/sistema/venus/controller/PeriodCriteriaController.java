@@ -39,4 +39,16 @@ public class PeriodCriteriaController {
             throw e;
         }
     }
+
+
+    @GetMapping(value = "getPeriodCriteriaByUser")
+    public ResponseEntity<List<PeriodCriteria>> getPeriodCriteriaByUser() {
+        try {
+            List<PeriodCriteria> userPeriodCriteria = periodCriteriaService.getPeriodCriteriaByUser();
+            return ResponseEntity.ok(userPeriodCriteria);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }
