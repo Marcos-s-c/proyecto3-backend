@@ -22,4 +22,5 @@ public class Notification {
     private LocalDate date;
     private String text;
     private Boolean read;
+
 }

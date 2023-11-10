@@ -2,15 +2,12 @@ package com.sistema.venus.controller;
 
 
 import com.sistema.venus.domain.Notification;
-import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.NotificationsRepository;
+import com.sistema.venus.services.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -20,7 +17,10 @@ public class NotificactionsController {
     @Autowired
     private NotificationsRepository notificationsRepository;
 
-    @PostMapping(value = "create")
+    @Autowired
+    private NotificationService notificationsService;
+
+   /* @PostMapping(value = "create")
     public ResponseEntity<Object> createNotification(@RequestBody Notification notifications) {
         try{
             notificationsRepository.save(notifications);
@@ -31,12 +31,20 @@ public class NotificactionsController {
             e.printStackTrace();
             throw e;
         }
-    }
+    }*/
 
-    /*@GetMapping
+    /*@GetMapping(value )
     public ResponseEntity<Object> getNotifications(){
         return
     }*/
 
-
+    @GetMapping("getAllPosts")
+    public List<Notification> getAllNotifications() {
+        try {
+            return notificationsService.getNotifications();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }
