@@ -41,26 +41,4 @@ public class PeriodCriteriaService {
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         return periodCriteriaRepository.getPeriodCriteriaByDate(LocalDate.parse(localDate,dateTimeFormatter),user.getUser_id());
     }
-
-    /**Validación para ingresar datos relacionados al ciclo menstrual*/
-    public String isInputPeriodCycleValid(String periodCycleValue, LocalDate periodDate){
-        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        PeriodCriteria periodCriteria = periodCriteriaRepository.getLastEntryOfPeriodCriteriaByUserIdAndFieldName("periodCycle", user.getUser_id());
-        String message = "";
-        if(periodCriteria != null && periodCycleValue != "NA"){
-            if(periodDate.isBefore(periodCriteria.getDate())){
-                message = "No fue fue posible guardar los datos. La fecha no es válida. Hay ciclos posteriores a esa fecha. ";
-            }
-            if(periodCriteria.getValue().equals("inicio") && periodCycleValue.equals(periodCriteria.getValue()) ){
-                message += "No fue fue posible guardar los datos. No hay registro de finalización del ciclo menstrual anterior. ";
-            }
-            if(periodCriteria.getValue().equals("fin") && periodCycleValue.equals(periodCriteria.getValue()) ){
-                message += "No fue fue posible guardar los datos. No hay registro de inicio del ciclo menstrual. ";
-            }
-        }
-        if(message.equals("")){
-            message += "success";
-        }
-        return message;
-    }
 }
