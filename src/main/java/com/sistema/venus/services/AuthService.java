@@ -1,7 +1,7 @@
 package com.sistema.venus.services;
 
 import com.sistema.venus.domain.*;
-import com.sistema.venus.util.Constants;
+import com.sistema.venus.util.Utils;
 import com.sistema.venus.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,18 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import javax.mail.Message;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.xml.bind.ValidationException;
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.Optional;
-import java.util.Properties;
 
 @Service
 public class AuthService {
@@ -46,9 +36,10 @@ public class AuthService {
     @Autowired
     private JavaMailSender javaMailSender;
 
+
     public LoginResponse getToken(LoginRequest loginRequest) {
         Authentication authentication =
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), Utils.passwordEncoder(loginRequest.getPassword())));
         String email = authentication.getName();
         User user = new User(email);
         String token = jwtUtil.createToken(user);
@@ -79,7 +70,7 @@ public class AuthService {
         Otps otps = otpsService.getOtpsByUserCode(body.getUserCode());
         if (!LocalDateTime.now().isAfter(otps.getTiempoExpiracion().plusMinutes(15))) {
             User user = userService.getUserById(otps.getUser_id());
-            user.setPassword(body.getNewPassword());
+            user.setPassword(Utils.passwordEncoder(body.getNewPassword()));
             userService.saveUser(user);
         } else {
             throw new ValidationException("Expired password change code");
@@ -90,8 +81,9 @@ public class AuthService {
         if (userService.isEmailInUse(user.getEmail())) {
             throw new RuntimeException("El correo ya está en uso.");
         }
-        user.setRol(Constants.USER_ROLE);
+        user.setRol(Utils.USER_ROLE);
         user.setActive(true);
+        user.setPassword(Utils.passwordEncoder(user.getPassword()));
         User savedUser = userService.saveUser(user);
         return ResponseEntity.ok(savedUser);
     }
