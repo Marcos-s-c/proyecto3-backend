@@ -30,6 +30,20 @@ public class PeriodCriteriaController {
         }
     }
 
+    @GetMapping(value="periodDuration")
+    public ResponseEntity<Object> getAverageDurationPeriod(){
+        try{
+            int periodAverage = periodCriteriaService.calculatePeriodAverage();
+            Map<String,Object> map = new HashMap<>();
+            map.put("average",periodAverage);
+            return ResponseEntity.ok(map);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
     @GetMapping(value = "getPeriodCriteriaByDate")
     public ResponseEntity<List<PeriodCriteria>> getPeriodCriteriaByDate(@RequestParam String date){
         try{

@@ -18,4 +18,7 @@ public interface PeriodCriteriaRepository extends JpaRepository<PeriodCriteria,L
     List<PeriodCriteria> getPeriodCriteriaByUserId(Long userId);
     @Query(nativeQuery = true, value="SELECT p.* FROM period_Criteria p where p.field_name = :fieldName and p.user_Id = :userId and p.value <> 'NA' order by p.date desc LIMIT 1")
     PeriodCriteria getLastEntryOfPeriodCriteriaByUserIdAndFieldName(@Param("fieldName") String fieldName, @Param("userId") Long userId);
+
+    @Query(nativeQuery = true, value="SELECT p.* FROM period_Criteria p where p.field_name = 'periodCycle' and p.user_Id = :userId and p.value <> 'NA' order by p.date desc LIMIT 13")
+    List<PeriodCriteria> getLast6PeriodCycles( @Param("userId") Long userId);
 }
