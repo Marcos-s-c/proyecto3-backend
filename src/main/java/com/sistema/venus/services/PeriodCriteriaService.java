@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -21,15 +22,16 @@ public class PeriodCriteriaService {
 
     private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public PeriodCriteria savePeriodCriteria(PeriodCriteria periodCriteria){
+    public PeriodCriteria savePeriodCriteria(PeriodCriteria periodCriteria) {
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        if(periodCriteria.getDate()==null){
+        if (periodCriteria.getDate() == null) {
             ZonedDateTime zdt = ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC);
             ZoneId zId = ZoneId.of("US/Central");
             periodCriteria.setDate(LocalDateTime.ofInstant(zdt.toInstant(), zId).toLocalDate());
         }
-        PeriodCriteria existingPeriodCriteria = periodCriteriaRepository.getPeriodCriteriaByDateAndFieldName(periodCriteria.getDate(),periodCriteria.getFieldName(),user.getUser_id());
-        if(existingPeriodCriteria!=null){
+        PeriodCriteria existingPeriodCriteria = periodCriteriaRepository.getPeriodCriteriaByDateAndFieldName(
+                periodCriteria.getDate(), periodCriteria.getFieldName(), user.getUser_id());
+        if (existingPeriodCriteria != null) {
             existingPeriodCriteria.setValue(periodCriteria.getValue());
             return periodCriteriaRepository.save(existingPeriodCriteria);
         }
@@ -37,8 +39,72 @@ public class PeriodCriteriaService {
         return periodCriteriaRepository.save(periodCriteria);
     }
 
-    public List<PeriodCriteria> getPeriodCriteriaByDate(String localDate){
+    public List<PeriodCriteria> getPeriodCriteriaByDate(String localDate) {
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        return periodCriteriaRepository.getPeriodCriteriaByDate(LocalDate.parse(localDate,dateTimeFormatter),user.getUser_id());
+        return periodCriteriaRepository.getPeriodCriteriaByDate(LocalDate.parse(localDate, dateTimeFormatter),
+                user.getUser_id());
+    }
+
+    public List<PeriodCriteria> getPeriodCriteriaByUser() {
+        User user = userRepository.findUserByEmail((SecurityContextHolder.getContext().getAuthentication().getName()));
+
+        return periodCriteriaRepository.getPeriodCriteriaByUserId(Long.parseLong(user.getUser_id().toString()));
+    }
+
+    /** Validación para ingresar datos relacionados al ciclo menstrual */
+    public String isInputPeriodCycleValid(String periodCycleValue, LocalDate periodDate) {
+        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        PeriodCriteria periodCriteria = periodCriteriaRepository
+                .getLastEntryOfPeriodCriteriaByUserIdAndFieldName("periodCycle", user.getUser_id());
+        String message = "";
+        if (periodCriteria != null && periodCycleValue != "NA") {
+            if (periodDate.isBefore(periodCriteria.getDate())) {
+                message = "No fue fue posible guardar los datos. La fecha no es válida. Hay ciclos posteriores a esa fecha. ";
+            }
+            if (periodCriteria.getValue().equals("inicio") && periodCycleValue.equals(periodCriteria.getValue())) {
+                message += "No fue fue posible guardar los datos. No hay registro de finalización del ciclo menstrual anterior. ";
+            }
+            if (periodCriteria.getValue().equals("fin") && periodCycleValue.equals(periodCriteria.getValue())) {
+                message += "No fue fue posible guardar los datos. No hay registro de inicio del ciclo menstrual. ";
+            }
+        }
+        if (message.equals("")) {
+            message += "success";
+        }
+        return message;
+    }
+
+    public int calculatePeriodAverage(){
+        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<PeriodCriteria> periodCriteria = periodCriteriaRepository.getLast6PeriodCycles(user.getUser_id());
+        int cyclesCount = 0;
+        LocalDate endCycle = null;
+        LocalDate startCycle = null;
+        int totalDays6PeriodCycles = 0;
+        int periodAverage = 0;
+        for(int i = 0; i< periodCriteria.size(); i++){
+            if(i==0 && periodCriteria.get(i).getValue().equals("fin")){
+                cyclesCount = cyclesCount+1;
+                endCycle = periodCriteria.get(i).getDate();
+            }
+            if(i!=0 && periodCriteria.get(i).getValue().equals("inicio")) {
+                startCycle = periodCriteria.get(i).getDate();
+                totalDays6PeriodCycles = totalDays6PeriodCycles + (int) ChronoUnit.DAYS.between(startCycle, endCycle);
+                endCycle = null;
+                startCycle = null;
+            }
+
+            if(i!=0 && periodCriteria.get(i).getValue().equals("fin")) {
+                cyclesCount = cyclesCount+1;
+                endCycle = periodCriteria.get(i).getDate();
+            }
+
+        }
+
+        if(cyclesCount>0){
+            periodAverage = totalDays6PeriodCycles/cyclesCount;
+        }
+
+        return periodAverage;
     }
 }
