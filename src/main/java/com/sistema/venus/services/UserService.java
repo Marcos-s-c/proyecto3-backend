@@ -54,8 +54,46 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public int actualizar(User user){
-        return userRepository.actualizar(user.getEmail(), user.getName(), user.getPhone());
+    public void actualizar(User user) {
+        // Verificar si el usuario realmente existe
+        User existingUser = userRepository.findUserByEmail(user.getEmail());
+        if (existingUser == null) {
+            throw new IllegalArgumentException("Usuario no encontrado para actualizar");
+        }
+
+        if(user.getPassword() != null){
+            existingUser.setPassword(Utils.passwordEncoder(user.getPassword()));
+        }
+
+        // Actualizar solo si los campos no son nulos
+        if (user.getName() != null) {
+            existingUser.setName(user.getName());
+        }
+
+        if (user.getPhone() != null) {
+            existingUser.setPhone(user.getPhone());
+        }
+
+        // Otros campos opcionales
+        if (user.getDob() != null) {
+            existingUser.setDob(user.getDob());
+        }
+
+        if (user.getWeight() != null) {
+            existingUser.setWeight(user.getWeight());
+        }
+
+        if (user.getHeight() != null) {
+            existingUser.setHeight(user.getHeight());
+        }
+
+        try {
+            // Guardar el usuario actualizado
+            userRepository.save(existingUser);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar el usuario", e);
+        }
     }
+
 
 }
