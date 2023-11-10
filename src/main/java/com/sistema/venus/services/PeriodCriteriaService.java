@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -71,5 +72,39 @@ public class PeriodCriteriaService {
             message += "success";
         }
         return message;
+    }
+
+    public int calculatePeriodAverage(){
+        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<PeriodCriteria> periodCriteria = periodCriteriaRepository.getLast6PeriodCycles(user.getUser_id());
+        int cyclesCount = 0;
+        LocalDate endCycle = null;
+        LocalDate startCycle = null;
+        int totalDays6PeriodCycles = 0;
+        int periodAverage = 0;
+        for(int i = 0; i< periodCriteria.size(); i++){
+            if(i==0 && periodCriteria.get(i).getValue().equals("fin")){
+                cyclesCount = cyclesCount+1;
+                endCycle = periodCriteria.get(i).getDate();
+            }
+            if(i!=0 && periodCriteria.get(i).getValue().equals("inicio")) {
+                startCycle = periodCriteria.get(i).getDate();
+                totalDays6PeriodCycles = totalDays6PeriodCycles + (int) ChronoUnit.DAYS.between(startCycle, endCycle);
+                endCycle = null;
+                startCycle = null;
+            }
+
+            if(i!=0 && periodCriteria.get(i).getValue().equals("fin")) {
+                cyclesCount = cyclesCount+1;
+                endCycle = periodCriteria.get(i).getDate();
+            }
+
+        }
+
+        if(cyclesCount>0){
+            periodAverage = totalDays6PeriodCycles/cyclesCount;
+        }
+
+        return periodAverage;
     }
 }
