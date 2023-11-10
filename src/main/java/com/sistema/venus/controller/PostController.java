@@ -30,6 +30,7 @@ public class PostController {
         }catch (ValidationException e){
             return ResponseEntity.internalServerError().body(Optional.of(e));
         }catch (Exception e){
+            e.printStackTrace();
             return ResponseEntity.internalServerError().body(Optional.of("Ha ocurrido un error salvando el post"));
         }
     }

@@ -37,7 +37,7 @@ public class PostService {
     private PostRepository postRepository;
 
     public void savePost(String postId, MultipartFile file, String subject, String content) throws IOException, ValidationException {
-        if(postRepository.findAll().stream().noneMatch(post -> post.getSubject().equals(subject) && postId != null && !post.getPostId().equals(Long.valueOf(postId)))){
+        if(postRepository.findAll().stream().noneMatch(post -> (postId==null && post.getSubject().equals(subject)) || (post.getSubject().equals(subject) &&!post.getPostId().equals(Long.valueOf(postId))))){
             postRepository.save(Post.builder()
                     .postId(postId!=null ? Long.valueOf(postId):null)
                     .subject(subject)
