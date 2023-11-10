@@ -2,6 +2,8 @@ package com.sistema.venus.controller;
 
 import com.sistema.venus.domain.Post;
 import com.sistema.venus.services.PostService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,8 @@ import java.util.Optional;
 public class PostController {
     @Autowired
     private PostService postService;
+
+    Logger logger = LoggerFactory.getLogger(PostController.class);
     @PostMapping(value = "create")
     public ResponseEntity<Object> create(@RequestPart(name="postId",required = false) String postId, @RequestPart(name = "file", required = false) MultipartFile file,@RequestPart("subject") String subject,@RequestPart("content") String content) throws IOException, ValidationException {
         try{
@@ -30,7 +34,7 @@ public class PostController {
         }catch (ValidationException e){
             return ResponseEntity.internalServerError().body(Optional.of(e));
         }catch (Exception e){
-            e.printStackTrace();
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(Optional.of("Ha ocurrido un error salvando el post"));
         }
     }
