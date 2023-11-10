@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -93,18 +94,40 @@ public class PeriodCriteriaService {
                 endCycle = null;
                 startCycle = null;
             }
-
             if(i!=0 && periodCriteria.get(i).getValue().equals("fin")) {
                 cyclesCount = cyclesCount+1;
                 endCycle = periodCriteria.get(i).getDate();
             }
-
         }
-
         if(cyclesCount>0){
             periodAverage = totalDays6PeriodCycles/cyclesCount;
         }
-
         return periodAverage;
+    }
+
+    public LocalDate calculateDateNextPeriod(){
+        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<PeriodCriteria> periodCriteria = periodCriteriaRepository.getLast6PeriodCycles(user.getUser_id());
+        LocalDate nextPeriodStart = null;
+        LocalDate periodStart_1 = null;
+        LocalDate periodStart_2 = null;
+        int totalDays6PeriodCycles = 0;
+        int daysAveragePeriod = 0;
+        List<LocalDate> startsCyclesList = new ArrayList<>();
+        for(int i = 0; i< periodCriteria.size(); i++){
+            if(periodCriteria.get(i).getValue().equals("inicio")){
+                startsCyclesList.add(periodCriteria.get(i).getDate());
+            }
+        }
+        if(startsCyclesList.size()>1){
+            for(int i = 1; i< startsCyclesList.size(); i++){
+                periodStart_2 = startsCyclesList.get(i);
+                periodStart_1 = startsCyclesList.get(i-1);
+                totalDays6PeriodCycles = totalDays6PeriodCycles + (int) ChronoUnit.DAYS.between(periodStart_2, periodStart_1);
+            }
+            daysAveragePeriod = totalDays6PeriodCycles/(startsCyclesList.size()-1);
+            nextPeriodStart = startsCyclesList.get(0).plusDays(daysAveragePeriod);
+        }
+        return nextPeriodStart;
     }
 }

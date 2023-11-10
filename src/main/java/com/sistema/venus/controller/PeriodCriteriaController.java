@@ -64,7 +64,18 @@ public class PeriodCriteriaController {
             throw e;
         }
     }
-
+    @GetMapping(value="nextPeriodDate")
+    public ResponseEntity<Object> getPeriodDate(){
+        try{
+            LocalDate nextPeriodDate = periodCriteriaService.calculateDateNextPeriod();
+            Map<String,Object> map = new HashMap<>();
+            map.put("date",nextPeriodDate);
+            return ResponseEntity.ok(map);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
     @GetMapping(value = "getPeriodCriteriaByDate")
     public ResponseEntity<List<PeriodCriteria>> getPeriodCriteriaByDate(@RequestParam String date){
