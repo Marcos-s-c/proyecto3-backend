@@ -83,6 +83,7 @@ public class AuthService {
         }
         user.setRol(Utils.USER_ROLE);
         user.setActive(true);
+        user.setPassword(Utils.passwordEncoder(user.getPassword()));
         User savedUser = userService.saveUser(user);
         return ResponseEntity.ok(savedUser);
     }
