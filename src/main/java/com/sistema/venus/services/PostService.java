@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,38 +37,60 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
 
-    public void savePost(MultipartFile file, String subject, String content) throws IOException {
-        postRepository.save(Post.builder()
-                .subject(subject)
-                .content(content)
-                .imageUrl(getImageUrl(file))
-                .build());
+    public void savePost(String postId, MultipartFile file, String subject, String content)
+            throws IOException, ValidationException {
+        if (postRepository.findAll().stream().noneMatch(post -> (postId == null && post.getSubject().equals(subject))
+                || (post.getSubject().equals(subject) && !post.getPostId().equals(Long.valueOf(postId))))) {
+            postRepository.save(Post.builder()
+                    .postId(postId != null ? Long.valueOf(postId) : null)
+                    .subject(subject)
+                    .content(content)
+                    .imageUrl(getImageUrl(file, postId))
+                    .build());
+        } else {
+            throw new ValidationException("Ya existe un post con ese asunto.");
+        }
     }
 
-    private String getImageUrl(MultipartFile file) throws IOException {
-        try{
-            if(file==null) return null;
-            File tempFile =  new File(String.format("%s\\%s-%s",tempFolder,System.currentTimeMillis(), file.getOriginalFilename()));
-            Files.write(tempFile.toPath(), file.getBytes());
+    public Post getPostById(Long postId) {
+        return postRepository.getPostByPostId(postId);
+    }
 
-            MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
-            entityBuilder.addBinaryBody("file",tempFile, ContentType.DEFAULT_BINARY, LocalDateTime.now().toString());
-            entityBuilder.addPart("upload_preset",new StringBody(cloudinaryPreset,ContentType.TEXT_PLAIN));
-
-            HttpPost request = new HttpPost(cloudinaryUrl);
-            request.setEntity(entityBuilder.build());
-            HttpResponse response = new DefaultHttpClient().execute(request);
-
-            tempFile.delete();
-            String url = objectMapper.readValue(EntityUtils.toString(response.getEntity(),"UTF-8"), JsonNode.class).get("secure_url").toString();
-            return url.substring(1,url.length()-1);
-        }catch (Exception e){
+    private String getImageUrl(MultipartFile file, String postId) throws IOException {
+        try {
+            if (postId != null && file == null) {
+                return postRepository.getPostByPostId(Long.valueOf(postId)).getImageUrl();
+            }
+            return getCloudinaryUrl(file);
+        } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
 
-    public List<Post> getAllPosts(){
+    private String getCloudinaryUrl(MultipartFile file) throws IOException {
+        if (file == null)
+            return null;
+        File tempFile = new File(
+                String.format("%s\\%s-%s", tempFolder, System.currentTimeMillis(), file.getOriginalFilename()));
+        Files.write(tempFile.toPath(), file.getBytes());
+
+        MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+        entityBuilder.addBinaryBody("file", tempFile, ContentType.DEFAULT_BINARY, LocalDateTime.now().toString());
+        entityBuilder.addPart("upload_preset", new StringBody(cloudinaryPreset, ContentType.TEXT_PLAIN));
+
+        HttpPost request = new HttpPost(cloudinaryUrl);
+        request.setEntity(entityBuilder.build());
+        HttpResponse response = new DefaultHttpClient().execute(request);
+
+        tempFile.delete();
+        String url = objectMapper.readValue(EntityUtils.toString(response.getEntity(), "UTF-8"), JsonNode.class)
+                .get("secure_url").toString();
+        return url.substring(1, url.length() - 1);
+    }
+
+    public List<Post> getAllPosts() {
         return postRepository.findAll();
+
     }
 }
