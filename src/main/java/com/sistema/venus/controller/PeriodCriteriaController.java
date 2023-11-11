@@ -77,6 +77,19 @@ public class PeriodCriteriaController {
         }
     }
 
+    @GetMapping(value="averageVariationCycle")
+    public ResponseEntity<Object> getAverageVariationCycle(){
+        try{
+            int averageVariationCycle = periodCriteriaService.calculateAverageVariationCycle();
+            Map<String,Object> map = new HashMap<>();
+            map.put("average",averageVariationCycle);
+            return ResponseEntity.ok(map);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
     @GetMapping(value = "getPeriodCriteriaByDate")
     public ResponseEntity<List<PeriodCriteria>> getPeriodCriteriaByDate(@RequestParam String date){
         try{
@@ -86,7 +99,6 @@ public class PeriodCriteriaController {
             throw e;
         }
     }
-
 
     @GetMapping(value = "getPeriodCriteriaByUser")
     public ResponseEntity<List<PeriodCriteria>> getPeriodCriteriaByUser() {
