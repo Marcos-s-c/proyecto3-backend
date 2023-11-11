@@ -65,7 +65,7 @@ public class AuthService {
             message.setSubject("Soporte Venus");
             message.setText(String.format("Hola,\n" +
                     "Visite este enlace para recuperar la contraseña:\n" +
-                    "%s/password_reset/%s",frontendHost, codigo));
+                    "%s/password_reset/%s","http://localhost:4200/", codigo));
             javaMailSender.send(message);
             return ResponseEntity.ok("Success");
         } catch (Exception e) {
@@ -73,7 +73,7 @@ public class AuthService {
         }
     }
 
-    public ResponseEntity<String> sendEmailSendGrid(RecuperaContraReqBody body){
+    /*public ResponseEntity<String> sendEmailSendGrid(RecuperaContraReqBody body){
         try {
             Email from = new Email("fretanah@ucenfotec.ac.cr");
             String subject = "Desde SendGrid";
@@ -106,7 +106,7 @@ public class AuthService {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
-    }
+    }*/
 
     public void passwordChange(PasswordResetChangeRequest body) throws ValidationException {
         Otps otps = otpsService.getOtpsByUserCode(body.getUserCode());
