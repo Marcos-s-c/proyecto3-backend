@@ -21,6 +21,9 @@ public class PeriodCriteriaService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private NotificationService notificationsService;
+
     private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public PeriodCriteria savePeriodCriteria(PeriodCriteria periodCriteria) {
@@ -34,9 +37,11 @@ public class PeriodCriteriaService {
                 periodCriteria.getDate(), periodCriteria.getFieldName(), user.getUser_id());
         if (existingPeriodCriteria != null) {
             existingPeriodCriteria.setValue(periodCriteria.getValue());
+            notificationsService.createPeriodCriteriaNotification(periodCriteria);
             return periodCriteriaRepository.save(existingPeriodCriteria);
         }
         periodCriteria.setUserId(user);
+        notificationsService.createPeriodCriteriaNotification(periodCriteria);
         return periodCriteriaRepository.save(periodCriteria);
     }
 
