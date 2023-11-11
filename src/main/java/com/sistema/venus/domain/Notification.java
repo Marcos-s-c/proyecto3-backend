@@ -15,12 +15,13 @@ public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     @JsonBackReference
     private User user_id;
     private LocalDate date;
     private String text;
-    private Boolean read;
+    private Boolean open;
 
 }

@@ -26,23 +26,19 @@ public class NotificationService {
 
     private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public Notification saveNotifcation(Notification notification){
-        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        if(notification.getDate()==null){
-            ZonedDateTime zdt = ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC);
-            ZoneId zId = ZoneId.of("US/Central");
-            notification.setDate(LocalDateTime.ofInstant(zdt.toInstant(), zId).toLocalDate());
-        }
-        notification.setUser_id(user);
-        return notificationsRepository.save(notification);
-    }
-
     public void createPeriodCriteriaNotification(PeriodCriteria periodCriterias){
 
         if(periodCriterias.getFieldName().equals("periodColor")){
             Notification notification = new Notification();
+            User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+            if(notification.getDate()==null){
+                ZonedDateTime zdt = ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC);
+                ZoneId zId = ZoneId.of("US/Central");
+                notification.setDate(LocalDateTime.ofInstant(zdt.toInstant(), zId).toLocalDate());
+            }
             notification.setText(createNotificationText(periodCriterias.getValue()));
-            notification.setRead(false);
+            notification.setUser_id(user);
+            notification.setOpen(false);
             notificationsRepository.save(notification);
         }
 
@@ -53,6 +49,13 @@ public class NotificationService {
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
 
         return notificationsRepository.getNotificationByUserId(user.getUser_id());
+    }
+
+    public void readNotifications(){
+        notificationsRepository.findAll().forEach(notification -> {
+            notification.setOpen(true);
+            notificationsRepository.save(notification);
+        });
     }
 
     public String createNotificationText(String color) {
@@ -68,7 +71,7 @@ public class NotificationService {
                 text = "Su sangrado fue de color naranja, lo cual puede estar relacionado infecciones. " +
                         "Es importante que consulte a su médico de cabecera o ginecólogo de confianza. ";
                 break;
-            case "otro color":
+            case "Otro":
                 text = "Su sangrado fue de un color diferente al rojo.  Es importante que consulte a su médico de cabecera o ginecólogo de confianza.";
                 break;
 
