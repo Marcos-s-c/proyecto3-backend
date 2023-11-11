@@ -1,5 +1,6 @@
 package com.sistema.venus.services;
 
+import com.sistema.venus.domain.ResetContraRequestBody;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.UserRepository;
 import com.sistema.venus.util.Utils;
@@ -96,4 +97,10 @@ public class UserService implements UserDetailsService {
     }
 
 
+    public String concuerda(ResetContraRequestBody body) {
+        User user = userRepository.findUserByEmail(body.getEmail());
+        String contraReal = Utils.passwordDecoder(user.getPassword());
+        if(body.getString().equals(contraReal)) return "true";
+        else return "false";
+    }
 }

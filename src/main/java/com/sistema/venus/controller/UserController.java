@@ -1,5 +1,6 @@
 package com.sistema.venus.controller;
 
+import com.sistema.venus.domain.ResetContraRequestBody;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.UserRepository;
 import com.sistema.venus.services.UserService;
@@ -40,6 +41,17 @@ public class UserController {
             userService.actualizar(u);
             return ResponseEntity.status(HttpStatus.OK).build();
         }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @PostMapping(value = "concordar")
+    public ResponseEntity<String> concordar(@RequestBody ResetContraRequestBody body){
+        try{
+            userService.concuerda(body);
+            return ResponseEntity.ok(userService.concuerda(body));
+        }catch(Exception e){
             e.printStackTrace();
             throw e;
         }
