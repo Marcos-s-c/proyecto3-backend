@@ -18,6 +18,7 @@ import java.util.List;
 
 @Service
 public class NotificationService {
+
     @Autowired
     private NotificationsRepository notificationsRepository;
     @Autowired
@@ -37,18 +38,41 @@ public class NotificationService {
     }
 
     public void createPeriodCriteriaNotification(PeriodCriteria periodCriterias){
-        System.out.println(periodCriterias.getFieldName());
-        System.out.println(periodCriterias.getValue());
+
         if(periodCriterias.getFieldName().equals("periodColor")){
-            System.out.println("paso");
+            Notification notification = new Notification();
+            notification.setText(createNotificationText(periodCriterias.getValue()));
+            notification.setRead(false);
+            notificationsRepository.save(notification);
         }
 
-        //saveNotifcation()
+
     }
 
     public List<Notification> getNotifications(){
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
 
         return notificationsRepository.getNotificationByUserId(user.getUser_id());
+    }
+
+    public String createNotificationText(String color) {
+        String text = "";
+        switch (color) {
+            case "rojo palido":
+                text = "Su sangrado fue de color rojo pálido, " +
+                        "lo cual puede estar relacionado a la toma de algún anticonceptivo o transtornos hormonales.  " +
+                        "Es importante que consulte a su médico de cabecera o ginecólogo de confianza. ";
+                break;
+
+            case "anaranjado":
+                text = "Su sangrado fue de color naranja, lo cual puede estar relacionado infecciones. " +
+                        "Es importante que consulte a su médico de cabecera o ginecólogo de confianza. ";
+                break;
+            case "otro color":
+                text = "Su sangrado fue de un color diferente al rojo.  Es importante que consulte a su médico de cabecera o ginecólogo de confianza.";
+                break;
+
+        }
+        return text;
     }
 }
