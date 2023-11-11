@@ -22,7 +22,7 @@ public class Medication {
     private User userId;
     private String name;
     private String dosis;
-    private int frecuencia;
+    private String frecuencia;
 
 
 }
