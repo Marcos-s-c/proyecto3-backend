@@ -1,5 +1,12 @@
 package com.sistema.venus.services;
 
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
 import com.sistema.venus.domain.*;
 import com.sistema.venus.util.Utils;
 import com.sistema.venus.util.JwtUtils;
@@ -60,6 +67,41 @@ public class AuthService {
                     "Visite este enlace para recuperar la contraseña:\n" +
                     "%s/password_reset/%s",frontendHost, codigo));
             javaMailSender.send(message);
+            return ResponseEntity.ok("Success");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    public ResponseEntity<String> sendEmailSendGrid(RecuperaContraReqBody body){
+        try {
+            Email from = new Email("fretanah@ucenfotec.ac.cr");
+            String subject = "Desde SendGrid";
+            Email to = new Email("die19h.g@hotmail.com");
+            // die19h.g@hotmail.com
+            //fabian.retana@hotmail.com
+
+            SendGrid sg = new SendGrid("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");
+            Request request = new Request();
+
+            Long userId = userService.getIdByEmail(body.getEmail());
+            if(userId == null) return ResponseEntity.ok("Success");
+            Otps otps = new Otps();
+            otps.setUser_id(userId);
+            String codigo =  otpsService.addOtps(otps).getCodigo();
+
+            Content content = new Content("text/plain", String.format("Hola,\n" +
+                    "Visite este enlace para recuperar la contraseña:\n" +
+                    "%s/password_reset/%s",frontendHost, codigo));
+            Mail mail = new Mail(from, subject, to, content);
+
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            Response response = sg.api(request);
+            System.out.println(response.getStatusCode());
+            System.out.println(response.getBody());
+            System.out.println(response.getHeaders());
             return ResponseEntity.ok("Success");
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
