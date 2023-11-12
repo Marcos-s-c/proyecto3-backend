@@ -21,6 +21,9 @@ public class PeriodCriteriaService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private NotificationService notificationsService;
+
     private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public PeriodCriteria savePeriodCriteria(PeriodCriteria periodCriteria) {
@@ -34,9 +37,11 @@ public class PeriodCriteriaService {
                 periodCriteria.getDate(), periodCriteria.getFieldName(), user.getUser_id());
         if (existingPeriodCriteria != null) {
             existingPeriodCriteria.setValue(periodCriteria.getValue());
+            notificationsService.createPeriodCriteriaNotification(periodCriteria);
             return periodCriteriaRepository.save(existingPeriodCriteria);
         }
         periodCriteria.setUserId(user);
+        notificationsService.createPeriodCriteriaNotification(periodCriteria);
         return periodCriteriaRepository.save(periodCriteria);
     }
 
@@ -164,6 +169,63 @@ public class PeriodCriteriaService {
         LocalDate firstDayOfMonth = YearMonth.now().atDay(1);
         LocalDate lastDayOfMonth = YearMonth.now().atEndOfMonth();
         return periodCriteriaRepository.findByUserIdAndDateBetween(user.getUser_id(), firstDayOfMonth, lastDayOfMonth);
+    }
+   
+        public List<LocalDate> calculateNextFertileDate(){
+        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<PeriodCriteria> periodCriteria = periodCriteriaRepository.getLastPeriodCycle(user.getUser_id());
+        LocalDate startCycle = null;
+        LocalDate endCycle = null;
+        List<PeriodCriteria> temperatureList;
+        List<PeriodCriteria> cervicalFluidList;
+        LocalDate ovulationDay = null;
+        LocalDate startFertileDay = null;
+        List<LocalDate> fertileRangeDays = new ArrayList<>();
+
+        for(int i = 0; i< periodCriteria.size(); i++) {
+            if(i==0 && periodCriteria.get(i).getValue().equals("inicio")){
+                startCycle = periodCriteria.get(i).getDate();
+            }
+            if(startCycle != null && endCycle == null && periodCriteria.get(i).getValue().equals("fin")){
+                endCycle = periodCriteria.get(i).getDate();
+            }
+            if(startCycle == null && periodCriteria.get(i).getValue().equals("inicio")){
+                startCycle = periodCriteria.get(i).getDate();
+            }
+        }
+
+        if(startCycle != null && endCycle != null){
+            temperatureList = periodCriteriaRepository.getPeriodCriteriaLastPeriodCycle("temperature", user.getUser_id(), startCycle, endCycle);
+            cervicalFluidList = periodCriteriaRepository.getPeriodCriteriaLastPeriodCycle("fluidAmount", user.getUser_id(), startCycle, endCycle);
+
+            for(int i = 1; i< temperatureList.size(); i++) {
+                if((Double.parseDouble(temperatureList.get(i).getValue()) - Double.parseDouble(temperatureList.get(i-1).getValue()) ) > 0.7){
+                    ovulationDay = temperatureList.get(i).getDate();
+                    break;
+                }
+            }
+
+            for(int i = 0; i< cervicalFluidList.size(); i++){
+                if(cervicalFluidList.get(i).getValue().equals("Muy húmedo") || cervicalFluidList.get(i).getValue().equals("Húmedo")){
+                    startFertileDay = cervicalFluidList.get(i).getDate();
+                    break;
+                }
+            }
+        }
+
+        if(ovulationDay != null && startFertileDay != null){
+            fertileRangeDays.add(startFertileDay);
+            fertileRangeDays.add(ovulationDay.plusDays(1));
+        }
+        if(ovulationDay == null && startFertileDay != null){
+            fertileRangeDays.add(startFertileDay);
+            fertileRangeDays.add(startFertileDay.plusDays(9));
+        }
+        if(ovulationDay != null && startFertileDay == null){
+            fertileRangeDays.add(ovulationDay.minusDays(8));
+            fertileRangeDays.add(ovulationDay.plusDays(1));
+        }
+        return fertileRangeDays; 
     }
 }
 

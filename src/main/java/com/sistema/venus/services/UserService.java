@@ -1,5 +1,6 @@
 package com.sistema.venus.services;
 
+import com.sistema.venus.domain.ResetContraRequestBody;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.UserRepository;
 import com.sistema.venus.util.Utils;
@@ -8,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -45,5 +48,59 @@ public class UserService implements UserDetailsService {
     public boolean isUserActive(String email) {
         User user = userRepository.findUserByEmail(email);
         return user != null && user.getActive();
+    }
+
+    public User findUserByEmail(String email){
+        return userRepository.findUserByEmail(email);
+    }
+
+    @Transactional
+    public void actualizar(User user) {
+        // Verificar si el usuario realmente existe
+        User existingUser = userRepository.findUserByEmail(user.getEmail());
+        if (existingUser == null) {
+            throw new IllegalArgumentException("Usuario no encontrado para actualizar");
+        }
+
+        if(user.getPassword() != null){
+            existingUser.setPassword(Utils.passwordEncoder(user.getPassword()));
+        }
+
+        // Actualizar solo si los campos no son nulos
+        if (user.getName() != null) {
+            existingUser.setName(user.getName());
+        }
+
+        if (user.getPhone() != null) {
+            existingUser.setPhone(user.getPhone());
+        }
+
+        // Otros campos opcionales
+        if (user.getDob() != null) {
+            existingUser.setDob(user.getDob());
+        }
+
+        if (user.getWeight() != null) {
+            existingUser.setWeight(user.getWeight());
+        }
+
+        if (user.getHeight() != null) {
+            existingUser.setHeight(user.getHeight());
+        }
+
+        try {
+            // Guardar el usuario actualizado
+            userRepository.save(existingUser);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar el usuario", e);
+        }
+    }
+
+
+    public String concuerda(ResetContraRequestBody body) {
+        User user = userRepository.findUserByEmail(body.getEmail());
+        String contraReal = Utils.passwordDecoder(user.getPassword());
+        if(body.getString().equals(contraReal)) return "true";
+        else return "false";
     }
 }

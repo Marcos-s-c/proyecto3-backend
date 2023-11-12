@@ -90,6 +90,28 @@ public class PeriodCriteriaController {
         }
     }
 
+    @GetMapping(value="fertileDays")
+    public ResponseEntity<Object> getFertileDays(){
+        try{
+            List<LocalDate> fertileDaysRange= periodCriteriaService.calculateNextFertileDate();
+            Map<String,Object> map = new HashMap<>();
+            String fertileDays = "";
+            for(int i = 0; i<fertileDaysRange.size();i++){
+                if(i==0){
+                    fertileDays += fertileDaysRange.get(i).toString() + " - ";
+                }
+                if(i==1){
+                    fertileDays += fertileDaysRange.get(i).toString();
+                }
+            }
+            map.put("fertileDays", fertileDays);
+            return ResponseEntity.ok(map);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
     @GetMapping(value = "getPeriodCriteriaByDate")
     public ResponseEntity<List<PeriodCriteria>> getPeriodCriteriaByDate(@RequestParam String date){
         try{

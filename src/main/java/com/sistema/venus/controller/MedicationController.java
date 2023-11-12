@@ -1,0 +1,64 @@
+package com.sistema.venus.controller;
+
+
+import com.sistema.venus.domain.Medication;
+import com.sistema.venus.domain.PeriodCriteria;
+import com.sistema.venus.services.MedicationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.annotation.*;
+
+import javax.persistence.EntityNotFoundException;
+import javax.xml.bind.ValidationException;
+import java.util.List;
+
+@RestController
+@CrossOrigin
+@RequestMapping("/rest/medicines")
+public class MedicationController {
+
+    @Autowired
+    MedicationService medicationService;
+
+
+    @PostMapping(value = "add")
+    public ResponseEntity<Medication>createMedicine(@RequestBody Medication medicine)
+        throws ValidationException{
+        try{
+            medicationService.saveMedicine(medicine);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }catch(Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @GetMapping(value = "get")
+    public ResponseEntity<List<Medication>>getMedicines() {
+        try {
+        List<Medication> medications = medicationService.getMedicationByUser();
+        return ResponseEntity.ok(medications);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+    }
+
+    @DeleteMapping(value = "delete/{id}")
+    public ResponseEntity<String> deleteMedicine(@PathVariable Long id) {
+        try {
+            Medication deletedMedication = medicationService.deleteMedicine(id);
+            return ResponseEntity.ok("Medication with ID " + id + " deleted successfully.");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+}
