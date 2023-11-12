@@ -121,6 +121,16 @@ public class PeriodCriteriaController {
             throw e;
         }
     }
+    @GetMapping (value = "getPeriodCriteriaLastMonth")
+    public ResponseEntity<List<PeriodCriteria>> getPeriodCritiriaLastMonth(){
+        System.out.println("llega");
+        try{
+            return ResponseEntity.of(Optional.of(periodCriteriaService.getAllPeriodCriteriaByUserIdAndCurrentMonth()));
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
     @GetMapping(value = "getPeriodCriteriaByUser")
     public ResponseEntity<List<PeriodCriteria>> getPeriodCriteriaByUser() {

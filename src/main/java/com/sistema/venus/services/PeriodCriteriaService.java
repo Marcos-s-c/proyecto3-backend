@@ -164,7 +164,14 @@ public class PeriodCriteriaService {
         return daysAverageVariationCycle;
     }
 
-    public List<LocalDate> calculateNextFertileDate(){
+    public List<PeriodCriteria> getAllPeriodCriteriaByUserIdAndCurrentMonth() {
+        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        LocalDate firstDayOfMonth = YearMonth.now().atDay(1);
+        LocalDate lastDayOfMonth = YearMonth.now().atEndOfMonth();
+        return periodCriteriaRepository.findByUserIdAndDateBetween(user.getUser_id(), firstDayOfMonth, lastDayOfMonth);
+    }
+   
+        public List<LocalDate> calculateNextFertileDate(){
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         List<PeriodCriteria> periodCriteria = periodCriteriaRepository.getLastPeriodCycle(user.getUser_id());
         LocalDate startCycle = null;
@@ -218,6 +225,7 @@ public class PeriodCriteriaService {
             fertileRangeDays.add(ovulationDay.minusDays(8));
             fertileRangeDays.add(ovulationDay.plusDays(1));
         }
-        return fertileRangeDays;
+        return fertileRangeDays; 
     }
 }
+

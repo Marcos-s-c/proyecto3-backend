@@ -12,6 +12,9 @@ public interface PeriodCriteriaRepository extends JpaRepository<PeriodCriteria,L
     @Query("SELECT p FROM PeriodCriteria p JOIN p.userId u WHERE p.date = :date and p.fieldName = :fieldName and u.user_id = :userId")
     PeriodCriteria getPeriodCriteriaByDateAndFieldName(LocalDate date,String fieldName,Long userId);
 
+    @Query(nativeQuery = true,value = "SELECT p.* FROM period_Criteria p WHERE p.user_Id = :userId AND p.date BETWEEN :startDate AND :endDate")
+    List<PeriodCriteria> findByUserIdAndDateBetween(@Param("userId") Long userId, LocalDate startDate, LocalDate endDate);
+
     @Query("SELECT p FROM PeriodCriteria p JOIN p.userId u WHERE p.date = :date and u.user_id = :userId")
     List<PeriodCriteria> getPeriodCriteriaByDate(LocalDate date, Long userId);
 
