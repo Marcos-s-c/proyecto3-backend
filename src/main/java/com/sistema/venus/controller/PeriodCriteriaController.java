@@ -55,7 +55,7 @@ public class PeriodCriteriaController {
     @GetMapping(value="periodDuration")
     public ResponseEntity<Object> getAverageDurationPeriod(){
         try{
-            int periodAverage = periodCriteriaService.calculatePeriodAverage();
+            Integer periodAverage = periodCriteriaService.calculatePeriodAverage();
             Map<String,Object> map = new HashMap<>();
             map.put("average",periodAverage);
             return ResponseEntity.ok(map);

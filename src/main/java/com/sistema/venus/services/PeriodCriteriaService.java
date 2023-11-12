@@ -87,14 +87,14 @@ public class PeriodCriteriaService {
         return message;
     }
 
-    public int calculatePeriodAverage(){
+    public Integer calculatePeriodAverage(){
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         List<PeriodCriteria> periodCriteria = periodCriteriaRepository.getLast6PeriodCycles(user.getUser_id());
         int cyclesCount = 0;
         LocalDate endCycle = null;
         LocalDate startCycle = null;
         int totalDays6PeriodCycles = 0;
-        int periodAverage = 0;
+        Integer periodAverage = null;
         for(int i = 0; i< periodCriteria.size(); i++){
             if(i==0 && periodCriteria.get(i).getValue().equals("fin")){
                 cyclesCount = cyclesCount+1;
