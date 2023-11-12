@@ -158,4 +158,12 @@ public class PeriodCriteriaService {
         }
         return daysAverageVariationCycle;
     }
+
+    public List<PeriodCriteria> getAllPeriodCriteriaByUserIdAndCurrentMonth() {
+        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        LocalDate firstDayOfMonth = YearMonth.now().atDay(1);
+        LocalDate lastDayOfMonth = YearMonth.now().atEndOfMonth();
+        return periodCriteriaRepository.findByUserIdAndDateBetween(user.getUser_id(), firstDayOfMonth, lastDayOfMonth);
+    }
 }
+
