@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -90,7 +92,6 @@ public class PostService {
     }
 
     public List<Post> getAllPosts() {
-        return postRepository.findAll();
-
+        return postRepository.getSortedPosts();
     }
 }
