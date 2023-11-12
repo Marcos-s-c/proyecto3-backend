@@ -80,7 +80,7 @@ public class PeriodCriteriaController {
     @GetMapping(value="averageVariationCycle")
     public ResponseEntity<Object> getAverageVariationCycle(){
         try{
-            int averageVariationCycle = periodCriteriaService.calculateAverageVariationCycle();
+            Integer averageVariationCycle = periodCriteriaService.calculateAverageVariationCycle();
             Map<String,Object> map = new HashMap<>();
             map.put("average",averageVariationCycle);
             return ResponseEntity.ok(map);
@@ -95,16 +95,14 @@ public class PeriodCriteriaController {
         try{
             List<LocalDate> fertileDaysRange= periodCriteriaService.calculateNextFertileDate();
             Map<String,Object> map = new HashMap<>();
-            String fertileDays = "";
             for(int i = 0; i<fertileDaysRange.size();i++){
                 if(i==0){
-                    fertileDays += fertileDaysRange.get(i).toString() + " - ";
+                    map.put("firstDate", fertileDaysRange.get(i));
                 }
                 if(i==1){
-                    fertileDays += fertileDaysRange.get(i).toString();
+                    map.put("lastDate", fertileDaysRange.get(i));
                 }
             }
-            map.put("fertileDays", fertileDays);
             return ResponseEntity.ok(map);
         }catch (Exception e){
             e.printStackTrace();
