@@ -163,6 +163,7 @@ public class PeriodCriteriaService {
                 periodStart_1 = startsCyclesList.get(i-1);
                 cycleDuration.add((int) ChronoUnit.DAYS.between(periodStart_2, periodStart_1));
             }
+            daysAverageVariationCycle = 0;
             for(int i = 1; i< cycleDuration.size(); i++){
                 daysAverageVariationCycle = daysAverageVariationCycle + Math.abs(cycleDuration.get(i)-cycleDuration.get(i-1));
             }
