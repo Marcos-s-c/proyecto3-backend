@@ -63,7 +63,7 @@ public class PeriodCriteriaService {
         PeriodCriteria periodCriteria = periodCriteriaRepository
                 .getLastEntryOfPeriodCriteriaByUserIdAndFieldName("periodCycle", user.getUser_id());
         String message = "";
-        if (periodCriteria != null && periodCycleValue != "NA") {
+        if (periodCriteria != null && !periodCycleValue.equals("NA")) {
             if (periodDate.isBefore(periodCriteria.getDate())) {
                 message = "No fue fue posible guardar los datos. La fecha no es válida. Hay ciclos posteriores a esa fecha. ";
             }
@@ -74,6 +74,13 @@ public class PeriodCriteriaService {
                 message += "No fue fue posible guardar los datos. No hay registro de inicio del ciclo menstrual. ";
             }
         }
+
+        PeriodCriteria periodCycleByDateAndUser = periodCriteriaRepository.getPeriodCycleByDateAndUser( user.getUser_id(), periodDate);
+        if(periodCycleValue.equals("NA") && periodCycleByDateAndUser != null &&
+                (periodCycleByDateAndUser.getValue().equals("inicio") || periodCycleByDateAndUser.getValue().equals("inicio")) && !periodCriteria.getDate().equals(periodCycleByDateAndUser.getDate())){
+            message += "No fue fue posible guardar los datos, porque la solicitud puede generar inconsistencias. ";
+        }
+
         if (message.equals("")) {
             message += "success";
         }
@@ -136,13 +143,13 @@ public class PeriodCriteriaService {
         return nextPeriodStart;
     }
 
-    public int calculateAverageVariationCycle(){
+    public Integer calculateAverageVariationCycle(){
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         List<PeriodCriteria> periodCriteria = periodCriteriaRepository.getLast6PeriodCycles(user.getUser_id());
         LocalDate nextPeriodStart = null;
         LocalDate periodStart_1 = null;
         LocalDate periodStart_2 = null;
-        int daysAverageVariationCycle = 0;
+        Integer daysAverageVariationCycle = null;
         List<LocalDate> startsCyclesList = new ArrayList<>();
         List<Integer> cycleDuration = new ArrayList<>();
         for(int i = 0; i< periodCriteria.size(); i++){
@@ -150,7 +157,7 @@ public class PeriodCriteriaService {
                 startsCyclesList.add(periodCriteria.get(i).getDate());
             }
         }
-        if(startsCyclesList.size()>1){
+        if(startsCyclesList.size()>2){
             for(int i = 1; i< startsCyclesList.size(); i++){
                 periodStart_2 = startsCyclesList.get(i);
                 periodStart_1 = startsCyclesList.get(i-1);
@@ -159,7 +166,7 @@ public class PeriodCriteriaService {
             for(int i = 1; i< cycleDuration.size(); i++){
                 daysAverageVariationCycle = daysAverageVariationCycle + Math.abs(cycleDuration.get(i)-cycleDuration.get(i-1));
             }
-            daysAverageVariationCycle = daysAverageVariationCycle/(cycleDuration.size()-1);
+                daysAverageVariationCycle = daysAverageVariationCycle/(cycleDuration.size()-1);
         }
         return daysAverageVariationCycle;
     }
