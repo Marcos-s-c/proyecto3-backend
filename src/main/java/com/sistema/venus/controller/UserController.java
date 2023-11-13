@@ -72,5 +72,15 @@ public class UserController {
             throw e;
         }
     }
+    @GetMapping(value = "preferencias/{email}")
+    public ResponseEntity<Notificaciones> getPreferenciaNotificacionByEmail(@PathVariable(value = "email")String email){
+        System.out.println("emaul + " + email);
+        try{
+            return ResponseEntity.ok(prefNotService.getPreferenciaNotificacionByEmail(email));
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
 }

@@ -62,7 +62,11 @@ public class UserService implements UserDetailsService {
             throw new IllegalArgumentException("Usuario no encontrado para actualizar");
         }
 
-        if(user.getPassword() != null){
+        if(user.getPassword().equals("") || user.getPassword().equals(" ") || user.getPassword() == null){
+            System.out.println("dentro if");
+            user.setPassword(existingUser.getPassword());
+        }else if(user.getPassword() != null){
+            System.out.println("dentro else");
             existingUser.setPassword(Utils.passwordEncoder(user.getPassword()));
         }
 

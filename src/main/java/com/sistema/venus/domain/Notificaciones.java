@@ -12,6 +12,8 @@ public class Notificaciones {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(name = "email_id")
     private String emailId;
     private String wapp;
     private String sms;
