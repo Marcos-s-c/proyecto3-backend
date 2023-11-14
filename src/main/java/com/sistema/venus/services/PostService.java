@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sistema.venus.domain.Post;
 import com.sistema.venus.repo.PostRepository;
+import com.sistema.venus.util.Utils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -11,6 +12,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,12 +42,25 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
 
-    public void savePost(String postId, MultipartFile file, String subject, String content)
+    private void createPost(MultipartFile file, String subject, String content)
             throws IOException, ValidationException {
-        if (postRepository.findAll().stream().noneMatch(post -> (postId == null && post.getSubject().equals(subject))
-                || (post.getSubject().equals(subject) && !post.getPostId().equals(Long.valueOf(postId))))) {
+        if (postRepository.findAll().stream().noneMatch(post -> post.getSubject().equals(subject))) {
             postRepository.save(Post.builder()
-                    .postId(postId != null ? Long.valueOf(postId) : null)
+                    .subject(subject)
+                    .content(content)
+                    .imageUrl(getImageUrl(file, null))
+                    .date(Utils.getDateCurrentTimezone())
+                    .build());
+        } else {
+            throw new ValidationException("Ya existe un post con ese asunto.");
+        }
+    }
+
+    private void updatePost(String postId, MultipartFile file, String subject, String content)
+            throws IOException, ValidationException {
+        if (postRepository.findAll().stream().noneMatch(post -> (post.getSubject().equals(subject) && !post.getPostId().equals(Long.valueOf(postId))))) {
+            postRepository.save(Post.builder()
+                    .postId(Long.valueOf(postId))
                     .subject(subject)
                     .content(content)
                     .imageUrl(getImageUrl(file, postId))
@@ -52,6 +68,14 @@ public class PostService {
         } else {
             throw new ValidationException("Ya existe un post con ese asunto.");
         }
+    }
+
+    public void upsertPost(String postId, MultipartFile file, String subject, String content) throws ValidationException, IOException {
+        if(postId==null){
+            createPost(file,subject,content);
+            return;
+        }
+        updatePost(postId,file,subject,content);
     }
 
     public Post getPostById(Long postId) {
@@ -92,6 +116,9 @@ public class PostService {
     }
 
     public List<Post> getAllPosts() {
-        return postRepository.getSortedPosts();
+        List<Post> posts = postRepository.findAll();
+        Comparator<Post> postComparator = Comparator.comparing(Post::getDate, Comparator.reverseOrder());
+        posts.sort(postComparator);
+        return posts;
     }
 }

@@ -1,6 +1,6 @@
 package com.sistema.venus.services;
 
-import com.sistema.venus.domain.Notificaciones;
+import com.sistema.venus.domain.UserPreferences;
 import com.sistema.venus.repo.NotificacionesRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,15 +8,15 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 
 @Service
-public class PreferenciasNotificacionesService {
+public class UserPreferenceService {
 
     @Autowired
     private NotificacionesRepo repo;
     @Transactional
-    public Notificaciones addPrefNotificacion(Notificaciones n) {
+    public UserPreferences addPrefNotificacion(UserPreferences n) {
         String emailId = n.getEmailId();
 
-        Notificaciones existingNotificacion = repo.getPreferenciaNotificacionByEmail(emailId);
+        UserPreferences existingNotificacion = repo.getPreferenciaNotificacionByEmail(emailId);
 
         if (existingNotificacion == null) {
             return repo.save(n);
@@ -24,11 +24,11 @@ public class PreferenciasNotificacionesService {
             if(repo.actualizaNotificacion(emailId, n.getEmail(), n.getSms(), n.getWapp()) == 1){
                 return n;
             }else {
-                return new Notificaciones();
+                return new UserPreferences();
             }
         }
     }
-    public Notificaciones getPreferenciaNotificacionByEmail(String email){
+    public UserPreferences getPreferenciaNotificacionByEmail(String email){
         return repo.getPreferenciaNotificacionByEmail(email);
     }
 

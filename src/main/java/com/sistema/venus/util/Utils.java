@@ -1,5 +1,6 @@
 package com.sistema.venus.util;
 
+import java.time.*;
 import java.util.Base64;
 
 public class Utils {
@@ -12,5 +13,12 @@ public class Utils {
     public static String passwordDecoder(String encodedPassword) {
         byte[] decodedBytes = Base64.getDecoder().decode(encodedPassword);
         return new String(decodedBytes);
+    }
+
+
+    public static LocalDate getDateCurrentTimezone() {
+        ZonedDateTime zdt = ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC);
+        ZoneId zId = ZoneId.of("US/Central");
+        return LocalDateTime.ofInstant(zdt.toInstant(), zId).toLocalDate();
     }
 }
