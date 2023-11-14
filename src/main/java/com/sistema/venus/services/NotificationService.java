@@ -4,6 +4,7 @@ import com.sistema.venus.domain.Notification;
 import com.sistema.venus.domain.PeriodCriteria;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.NotificationsRepository;
+import com.sistema.venus.repo.PeriodCriteriaRepository;
 import com.sistema.venus.repo.UserRepository;
 import com.sistema.venus.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class NotificationService {
     private NotificationsRepository notificationsRepository;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PeriodCriteriaRepository periodCriteriaRepository;
 
     private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -54,6 +58,30 @@ public class NotificationService {
             if(save == true){
                 notificationsRepository.save(notification);
                 save = false;
+            }
+        }
+
+        if(periodCriterias.getValue().equals("Muy abundante")){
+            int count = 1;
+            User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+            List<PeriodCriteria> previousCriterias = periodCriteriaRepository.findByUserIdAndDateBetween(user.getUser_id(), Utils.getDateCurrentTimezone().minusMonths(2),Utils.getDateCurrentTimezone());
+
+            for (int i = 0; i < previousCriterias.size(); i++) {
+                if( previousCriterias.get(i).getValue().equals("Muy abundante")){
+                    count++;
+                }
+            }
+
+            if(count >= 3){
+                Notification notification = new Notification();
+                if(notification.getDate()==null){
+                    notification.setDate(Utils.getDateCurrentTimezone());
+                }
+                notification.setUser_id(user);
+                notification.setText("Su menstruación ha sido abundante durante los últimos 3 meses. " +
+                        "Un sangrado abundante puede ser indicador de problemas hormonales, miomas uterinos, patología endometrial, entre otras. " +
+                        "Además, el sangrado excesivo prolongado puede desencadenar una anemia, por lo que es importante que consulte a su médico de cabecera o ginecólogo de confianza.");
+                notificationsRepository.save(notification);
             }
         }
     }
