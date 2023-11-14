@@ -5,14 +5,12 @@ import com.sistema.venus.domain.PeriodCriteria;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.NotificationsRepository;
 import com.sistema.venus.repo.UserRepository;
+import com.sistema.venus.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -32,9 +30,7 @@ public class NotificationService {
             Notification notification = new Notification();
             User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
             if(notification.getDate()==null){
-                ZonedDateTime zdt = ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC);
-                ZoneId zId = ZoneId.of("US/Central");
-                notification.setDate(LocalDateTime.ofInstant(zdt.toInstant(), zId).toLocalDate());
+                notification.setDate(Utils.getDateCurrentTimezone());
             }
             notification.setText(createNotificationText(periodCriterias.getValue()));
             notification.setUser_id(user);

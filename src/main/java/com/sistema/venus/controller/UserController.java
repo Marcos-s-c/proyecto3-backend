@@ -1,10 +1,9 @@
 package com.sistema.venus.controller;
 
-import com.sistema.venus.domain.Notificaciones;
+import com.sistema.venus.domain.UserPreferences;
 import com.sistema.venus.domain.ResetContraRequestBody;
 import com.sistema.venus.domain.User;
-import com.sistema.venus.repo.UserRepository;
-import com.sistema.venus.services.PreferenciasNotificacionesService;
+import com.sistema.venus.services.UserPreferenceService;
 import com.sistema.venus.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,7 +24,7 @@ public class UserController {
     UserService userService;
 
     @Autowired
-    PreferenciasNotificacionesService prefNotService;
+    UserPreferenceService prefNotService;
 
     @GetMapping(value = "logout")
     public ResponseEntity<Object> logout(){
@@ -63,7 +62,7 @@ public class UserController {
     }
 
     @PostMapping(value = "preferencias")
-    public ResponseEntity<Notificaciones> addPreferencia(@RequestBody Notificaciones body){
+    public ResponseEntity<UserPreferences> addPreferencia(@RequestBody UserPreferences body){
         System.out.println("pref"+body);
         try{
             return ResponseEntity.ok(prefNotService.addPrefNotificacion(body));
@@ -73,7 +72,7 @@ public class UserController {
         }
     }
     @GetMapping(value = "preferencias/{email}")
-    public ResponseEntity<Notificaciones> getPreferenciaNotificacionByEmail(@PathVariable(value = "email")String email){
+    public ResponseEntity<UserPreferences> getPreferenciaNotificacionByEmail(@PathVariable(value = "email")String email){
         System.out.println("emaul + " + email);
         try{
             return ResponseEntity.ok(prefNotService.getPreferenciaNotificacionByEmail(email));
