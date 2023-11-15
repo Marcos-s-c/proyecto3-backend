@@ -61,4 +61,17 @@ public class PostController {
             throw e;
         }
     }
+
+    @GetMapping("likePost")
+    public ResponseEntity<Object> likePost(@RequestParam Long postId) {
+        try {
+            postService.likePost(postId);
+            Map<String, Boolean> map = new HashMap<>();
+            map.put("Success", true);
+            return ResponseEntity.of(Optional.of(map));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }

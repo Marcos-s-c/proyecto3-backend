@@ -42,7 +42,8 @@ public class AuthService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private JavaMailSender javaMailSender;
-
+    @Autowired
+    private UserPreferenceService userPreferenceService;
 
     public LoginResponse getToken(LoginRequest loginRequest) {
         Authentication authentication =
@@ -127,6 +128,7 @@ public class AuthService {
         user.setActive(true);
         user.setPassword(Utils.passwordEncoder(user.getPassword()));
         User savedUser = userService.saveUser(user);
+        userPreferenceService.addPrefNotificacion(new UserPreferences(userService.getLoggedUser().getEmail()));
         return ResponseEntity.ok(savedUser);
     }
 
