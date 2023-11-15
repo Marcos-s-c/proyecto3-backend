@@ -5,6 +5,7 @@ import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.UserRepository;
 import com.sistema.venus.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,7 +17,6 @@ import javax.transaction.Transactional;
 public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
-
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -106,5 +106,9 @@ public class UserService implements UserDetailsService {
         String contraReal = Utils.passwordDecoder(user.getPassword());
         if(body.getString().equals(contraReal)) return "true";
         else return "false";
+    }
+
+    public User getLoggedUser(){
+        return userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
     }
 }

@@ -3,6 +3,8 @@ package com.sistema.venus.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sistema.venus.domain.Post;
+import com.sistema.venus.domain.User;
+import com.sistema.venus.domain.UserPreferences;
 import com.sistema.venus.repo.PostRepository;
 import com.sistema.venus.util.Utils;
 import org.apache.http.HttpResponse;
@@ -15,6 +17,7 @@ import org.apache.http.util.EntityUtils;
 import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,6 +44,10 @@ public class PostService {
     private ObjectMapper objectMapper;
     @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserPreferenceService userPreferenceService;
 
     private void createPost(MultipartFile file, String subject, String content)
             throws IOException, ValidationException {
@@ -116,9 +123,34 @@ public class PostService {
     }
 
     public List<Post> getAllPosts() {
+        List<Post> posts = getSortedPosts();
+        setLikes(posts);
+        return posts;
+    }
+
+    private void setLikes(List<Post> posts) {
+        posts.forEach(post -> {
+            if(post.getLikes().stream().anyMatch(userPreferences -> userPreferences.getEmailId().equals(userService.getLoggedUser().getEmail()))){
+                post.setLikedByLoggedUser(true);
+            }
+        });
+    }
+
+    private List<Post> getSortedPosts() {
         List<Post> posts = postRepository.findAll();
         Comparator<Post> postComparator = Comparator.comparing(Post::getDate, Comparator.reverseOrder());
         posts.sort(postComparator);
         return posts;
+    }
+
+    public void likePost(Long postId){
+        Post post = postRepository.getPostByPostId(postId);
+        UserPreferences userPreferences = userPreferenceService.getPreferenciaNotificacionByEmail(userService.getLoggedUser().getEmail());
+        if(post.getLikes().stream().noneMatch(up -> up.getUserPreferenceId().equals(userPreferences.getUserPreferenceId()))){
+            post.getLikes().add(userPreferences);
+        }else{
+            post.getLikes().removeIf(up -> up.getUserPreferenceId().equals(userPreferences.getUserPreferenceId()));
+        }
+        postRepository.save(post);
     }
 }
