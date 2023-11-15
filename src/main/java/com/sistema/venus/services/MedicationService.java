@@ -1,6 +1,5 @@
 package com.sistema.venus.services;
 
-import com.sistema.venus.controller.MedicationController;
 import com.sistema.venus.domain.Medication;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.MedicationRepository;
@@ -11,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.List;
 import com.sistema.venus.repo.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -31,7 +29,7 @@ public class MedicationService {
     public Medication saveMedicine(Medication medicine) {
         // Validate the Medicine object
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        medicine.setUserId(user);
+        medicine.setUser(user);
         return medicationRepository.save(medicine);
     }
 

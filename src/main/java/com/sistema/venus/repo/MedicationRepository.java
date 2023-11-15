@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface MedicationRepository extends JpaRepository<Medication,Long> {
-    @Query("SELECT p FROM Medication p JOIN p.userId u WHERE  u.user_id = :userId")
+    @Query("SELECT p FROM Medication p JOIN p.user u WHERE  u.user_id = :userId")
     List<Medication> getMedicationByUserId(Long userId);
 }
