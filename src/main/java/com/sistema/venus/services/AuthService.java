@@ -128,7 +128,7 @@ public class AuthService {
         user.setActive(true);
         user.setPassword(Utils.passwordEncoder(user.getPassword()));
         User savedUser = userService.saveUser(user);
-        userPreferenceService.addPrefNotificacion(new UserPreferences(userService.getLoggedUser().getEmail()));
+        userPreferenceService.addPrefNotificacion(new UserPreferences(savedUser.getEmail()));
         return ResponseEntity.ok(savedUser);
     }
 
