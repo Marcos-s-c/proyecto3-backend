@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -24,12 +23,7 @@ public class User {
     @OneToMany(mappedBy ="user", cascade = CascadeType.ALL)
     @JsonBackReference
     private List<Medication> medications;
-
-    private LocalDate dob;
-    private Double weight;
-    private Double height;
     private String phone;
-
 
     public User(String email){
         this.email = email;
@@ -89,30 +83,6 @@ public class User {
 
     public void setMedications(List<Medication> medications) {
         this.medications = medications;
-    }
-
-    public LocalDate getDob() {
-        return dob;
-    }
-
-    public void setDob(LocalDate dob) {
-        this.dob = dob;
-    }
-
-    public Double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Double weight) {
-        this.weight = weight;
-    }
-
-    public Double getHeight() {
-        return height;
-    }
-
-    public void setHeight(Double height) {
-        this.height = height;
     }
 
     public String getPhone() {
