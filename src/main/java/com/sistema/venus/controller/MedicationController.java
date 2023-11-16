@@ -2,7 +2,6 @@ package com.sistema.venus.controller;
 
 
 import com.sistema.venus.domain.Medication;
-import com.sistema.venus.domain.PeriodCriteria;
 import com.sistema.venus.services.MedicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,7 +37,8 @@ public class MedicationController {
     @GetMapping(value = "get")
     public ResponseEntity<List<Medication>>getMedicines() {
         try {
-        List<Medication> medications = medicationService.getMedicationByUser();
+        List<Medication> medications = medicationService.getAllFiltered();
+//        List<Medication> medications = medicationService.getMedicationByUser();
         return ResponseEntity.ok(medications);
         } catch (Exception e) {
             e.printStackTrace();

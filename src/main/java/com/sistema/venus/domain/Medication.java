@@ -24,5 +24,4 @@ public class Medication {
     private String dosis;
     private String frecuencia;
 
-
 }

@@ -1,6 +1,5 @@
 package com.sistema.venus.services;
 
-import com.sistema.venus.controller.MedicationController;
 import com.sistema.venus.domain.Medication;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.MedicationRepository;
@@ -9,9 +8,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import com.sistema.venus.repo.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -26,6 +26,13 @@ public class MedicationService {
     public List<Medication> getMedicationByUser(){
         User user = userRepository.findUserByEmail((SecurityContextHolder.getContext().getAuthentication().getName()));
         return medicationRepository.getMedicationByUserId(Long.parseLong(user.getUser_id().toString()));
+    }
+
+    public List<Medication> getAllFiltered(){
+        User user = userRepository.findUserByEmail((SecurityContextHolder.getContext().getAuthentication().getName()));
+        return medicationRepository.findAll().stream()
+                .filter(item -> item.getUserId().getUser_id().equals(user.getUser_id()))
+                .collect(Collectors.toList());
     }
 
     public Medication saveMedicine(Medication medicine) {
