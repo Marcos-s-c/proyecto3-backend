@@ -1,0 +1,66 @@
+package com.sistema.venus.controller;
+
+import com.sistema.venus.domain.User;
+import com.sistema.venus.domain.UserPreferences;
+import com.sistema.venus.repo.NotificacionesRepo;
+import com.sistema.venus.repo.NotificationsRepository;
+import com.sistema.venus.repo.UserRepository;
+import com.sistema.venus.services.PeriodCriteriaService;
+import com.sistema.venus.services.TwilioService;
+import com.sistema.venus.services.UserPreferenceService;
+import com.sistema.venus.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+@CrossOrigin
+@RequestMapping("/rest/twilio/")
+public class TwilioController {
+
+    @Autowired
+    private TwilioService twilioService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private PeriodCriteriaService periodCriteriaService;
+    @Autowired
+    private NotificacionesRepo notificationRepository;
+    @PostMapping("sendMessage/nextPeriod")
+    public ResponseEntity<Object> sendMessageNextPeriod() {
+        try {
+            String userPhoneNumber = userService.getLoggedUser().getPhone();
+            LocalDate userNextPeriod = periodCriteriaService.calculateDateNextPeriod();
+            UserPreferences userPreferences = notificationRepository.getPreferenciaNotificacionByEmail(userService.getLoggedUser().getEmail());
+            String smsPreference = userPreferences.getSms();
+            String message = null;
+            if(smsPreference.equals("1")){
+                if (userNextPeriod != null  && userNextPeriod.isAfter(LocalDate.now()) ) {
+                    message = "Venus informa: Su próximo periodo se pronostica para el: " + userNextPeriod.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
+                }else{
+                    message = "Venus informa: No hay datos pronóstico repecto a su próxima menstruación.";
+                }
+                twilioService.sendMessage(userPhoneNumber, message);
+            }
+            if(smsPreference.equals("0")){
+                message = "Debe ajustar sus preferencias de notificaciones, para recibir mensajes de texto.";
+            }
+            Map<String, Object> map = new HashMap<>();
+            map.put("result", message);
+            return ResponseEntity.ok().body(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+}
