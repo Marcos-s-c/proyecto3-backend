@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import javax.xml.bind.ValidationException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -58,15 +60,13 @@ public class MedicationController {
     }
 
     @DeleteMapping(value = "delete/{id}")
-    public ResponseEntity<String> deleteMedicine(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteMedicine(@PathVariable Long id) {
+        Map<String, String> response = new HashMap<>();
         try {
-            Medication deletedMedication = medicationService.deleteMedicine(id);
-            return ResponseEntity.ok("Medication with ID " + id + " deleted successfully.");
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        } catch (Exception e) {
+            medicationService.deleteMedicine(id);
+            response.put("response", "Medication with ID " + id + " deleted successfully.");
+            return ResponseEntity.ok(response);
+        }catch (Exception e){
             e.printStackTrace();
             throw e;
         }
