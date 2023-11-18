@@ -7,6 +7,7 @@ import com.sistema.venus.services.UserPreferenceService;
 import com.sistema.venus.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +62,7 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "preferencias")
+    @PostMapping(value = "preferencias",consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<UserPreferences> addPreferencia(@RequestBody UserPreferences body){
         System.out.println("pref"+body);
         try{
