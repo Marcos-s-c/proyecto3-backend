@@ -34,6 +34,16 @@ public class MedicationController {
         }
     }
 
+    @PutMapping(value = "mod/{id}")
+    public ResponseEntity<Medication> modificarMedicina(@RequestBody Medication med, @PathVariable Integer id){
+        try{
+            return ResponseEntity.ok(medicationService.modificarMedicina(med, id));
+        }catch(Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
     @GetMapping(value = "get")
     public ResponseEntity<List<Medication>>getMedicines() {
         try {
