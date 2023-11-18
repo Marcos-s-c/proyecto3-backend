@@ -40,7 +40,7 @@ public class MedicationService {
     public Medication saveMedicine(Medication medicine) {
         // Validate the Medicine object
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        medicine.setUserId(user);
+        medicine.setUser(user);
         return medicationRepository.save(medicine);
     }
 

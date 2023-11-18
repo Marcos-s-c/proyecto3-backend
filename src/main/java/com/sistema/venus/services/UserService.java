@@ -79,18 +79,7 @@ public class UserService implements UserDetailsService {
             existingUser.setPhone(user.getPhone());
         }
 
-        // Otros campos opcionales
-        if (user.getDob() != null) {
-            existingUser.setDob(user.getDob());
-        }
 
-        if (user.getWeight() != null) {
-            existingUser.setWeight(user.getWeight());
-        }
-
-        if (user.getHeight() != null) {
-            existingUser.setHeight(user.getHeight());
-        }
 
         try {
             // Guardar el usuario actualizado

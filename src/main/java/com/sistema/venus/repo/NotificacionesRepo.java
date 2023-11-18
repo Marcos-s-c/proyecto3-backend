@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 public interface NotificacionesRepo extends JpaRepository<UserPreferences, Integer> {
     @Query("select n from UserPreferences n where n.emailId = :email")
     UserPreferences getPreferenciaNotificacionByEmail(@Param("email") String email);
+
     @Modifying
     @Query("update UserPreferences n set n.email = :email, n.sms = :sms, n.wapp = :wapp where n.emailId = :emailId")
     int actualizaNotificacion(

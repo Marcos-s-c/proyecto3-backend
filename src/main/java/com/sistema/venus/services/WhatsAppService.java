@@ -1,0 +1,50 @@
+package com.sistema.venus.services;
+
+import com.sistema.venus.clients.whatsapp.WhatsAppClient;
+import com.sistema.venus.domain.User;
+import com.sistema.venus.domain.UserPreferences;
+import com.sistema.venus.repo.NotificacionesRepo;
+import com.sistema.venus.repo.NotificationsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
+public class WhatsAppService {
+    @Autowired
+    private PeriodCriteriaService periodCriteriaService;
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private NotificacionesRepo notificationRepository;
+    @Autowired
+    private WhatsAppClient client;
+
+    public String sendNextPeriodMessage() {
+        String userPhoneNumber = userService.getLoggedUser().getPhone();
+        LocalDate userNextPeriod = periodCriteriaService.calculateDateNextPeriod();
+        UserPreferences userPreferences = notificationRepository.getPreferenciaNotificacionByEmail(userService.getLoggedUser().getEmail());
+        String WAPreference = userPreferences.getWapp();
+        String message = null;
+        if(WAPreference.equals("1")) {
+            if (userNextPeriod != null && userNextPeriod.isAfter(LocalDate.now())) {
+                String date = userNextPeriod.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
+                message = "success";
+                client.sendWAMessage(userPhoneNumber, date);
+            }else{
+                message="success";
+                client.sendWAMessage(userPhoneNumber, "no disponible");
+            }
+        }
+        if(WAPreference.equals("0")){
+            message = "noWAPreferenceOn";
+        }
+        return message;
+    }
+}
