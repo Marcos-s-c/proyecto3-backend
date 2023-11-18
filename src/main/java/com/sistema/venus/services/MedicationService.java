@@ -4,10 +4,14 @@ import com.sistema.venus.domain.Medication;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.MedicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import com.sistema.venus.repo.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +28,13 @@ public class MedicationService {
     public List<Medication> getMedicationByUser(){
         User user = userRepository.findUserByEmail((SecurityContextHolder.getContext().getAuthentication().getName()));
         return medicationRepository.getMedicationByUserId(Long.parseLong(user.getUser_id().toString()));
+    }
+
+    public List<Medication> getAllFiltered(){
+        User user = userRepository.findUserByEmail((SecurityContextHolder.getContext().getAuthentication().getName()));
+        return medicationRepository.findAll().stream()
+                .filter(item -> item.getUserId().getUser_id().equals(user.getUser_id()))
+                .collect(Collectors.toList());
     }
 
     public Medication saveMedicine(Medication medicine) {
@@ -48,5 +59,14 @@ public class MedicationService {
         medicationRepository.delete(existingMedication);
 
         return existingMedication;
+    }
+
+    public Medication modificarMedicina(Medication med, Integer id) {
+        Optional<Medication> medActual = medicationRepository.findById(Long.parseLong(String.valueOf(id)));
+        medActual.get().setName(med.getName());
+        medActual.get().setDosis(med.getDosis());
+        medActual.get().setFrecuencia(med.getFrecuencia());
+
+        return medicationRepository.save(medActual.get());
     }
 }
