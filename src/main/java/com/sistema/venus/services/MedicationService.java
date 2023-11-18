@@ -4,7 +4,6 @@ import com.sistema.venus.domain.Medication;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.MedicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -33,12 +32,11 @@ public class MedicationService {
     public List<Medication> getAllFiltered(){
         User user = userRepository.findUserByEmail((SecurityContextHolder.getContext().getAuthentication().getName()));
         return medicationRepository.findAll().stream()
-                .filter(item -> item.getUserId().getUser_id().equals(user.getUser_id()))
+                .filter(item -> item.getUser().getUser_id().equals(user.getUser_id()))
                 .collect(Collectors.toList());
     }
 
     public Medication saveMedicine(Medication medicine) {
-        // Validate the Medicine object
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         medicine.setUser(user);
         return medicationRepository.save(medicine);
