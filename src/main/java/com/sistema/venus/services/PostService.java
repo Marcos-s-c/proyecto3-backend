@@ -66,10 +66,12 @@ public class PostService {
     private void updatePost(String postId, MultipartFile file, String subject, String content)
             throws IOException, ValidationException {
         if (postRepository.findAll().stream().noneMatch(post -> (post.getSubject().equals(subject) && !post.getPostId().equals(Long.valueOf(postId))))) {
+            postRepository.getPostByPostId(Long.parseLong(postId));
             postRepository.save(Post.builder()
                     .postId(Long.valueOf(postId))
                     .subject(subject)
                     .content(content)
+                    .date(postRepository.getPostByPostId(Long.parseLong(postId)).getDate())
                     .imageUrl(getImageUrl(file, postId))
                     .build());
         } else {
