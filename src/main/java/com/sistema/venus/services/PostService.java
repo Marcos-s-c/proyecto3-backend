@@ -155,4 +155,8 @@ public class PostService {
         }
         postRepository.save(post);
     }
+
+    public void borrarPost(Long postId) {
+        postRepository.deleteById(postId);
+    }
 }
