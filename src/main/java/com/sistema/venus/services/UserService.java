@@ -54,7 +54,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findUserByEmail(email);
     }
 
-    @Transactional
     public void actualizar(User user) {
         // Verificar si el usuario realmente existe
         User existingUser = userRepository.findUserByEmail(user.getEmail());

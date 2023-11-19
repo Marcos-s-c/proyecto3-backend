@@ -2,6 +2,7 @@ package com.sistema.venus.services;
 
 import com.sistema.venus.domain.Notification;
 import com.sistema.venus.domain.PeriodCriteria;
+import com.sistema.venus.domain.Post;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.NotificationsRepository;
 import com.sistema.venus.repo.PeriodCriteriaRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -108,8 +110,11 @@ public class NotificationService {
     }
 
     public List<Notification> getNotifications(){
-        User user = userService.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        return notificationsRepository.getNotificationByUserId(user.getUser_id());
+         User user = userService.getLoggedUser();
+         Comparator<Notification> notificationComparator = Comparator.comparing(Notification::getId, Comparator.reverseOrder());
+         List<Notification> notifications =  notificationsRepository.getNotificationByUserId(user.getUser_id());
+         notifications.sort(notificationComparator);
+         return notifications;
     }
 
 
