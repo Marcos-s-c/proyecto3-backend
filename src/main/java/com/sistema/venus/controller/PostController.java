@@ -74,4 +74,17 @@ public class PostController {
             throw e;
         }
     }
+
+    @DeleteMapping("borrar/{postId}")
+    public ResponseEntity<Object> borrarPost(@PathVariable(value = "postId") Long postId){
+        try{
+            postService.borrarPost(postId);
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("Borrado", "Success");
+            return ResponseEntity.ok(map);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }

@@ -21,7 +21,7 @@ public class Medication {
     private String name;
     private String dosis;
     private String frecuencia;
-
+  
     public Long getMedicine_id() {
         return medicine_id;
     }

@@ -28,6 +28,7 @@ public class Post {
     @JsonManagedReference
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "user_likes", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "user_preference_id"))
+   @JsonIgnore
     private Set<UserPreferences> likes;
     @Override
     public String toString() {
