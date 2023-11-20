@@ -1,5 +1,6 @@
 package com.sistema.venus.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sistema.venus.domain.UserPreferences;
 import com.sistema.venus.services.WhatsAppService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,9 @@ public class WhatsAppController {
     @Autowired
     WhatsAppService whatsAppService;
     @PostMapping("sendMessage/nextPeriod")
-    public ResponseEntity<Object> sendMessageNextPeriod() {
+    public ResponseEntity<Object> sendMessageNextPeriod() throws JsonProcessingException {
         try {
             String result = whatsAppService.sendNextPeriodMessage();
-
             Map<String, Object> map = new HashMap<>();
             map.put("result", result);
             return ResponseEntity.ok().body(map);
