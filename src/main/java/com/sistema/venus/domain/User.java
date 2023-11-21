@@ -19,6 +19,7 @@ public class User {
     private String rol;
     @Column(columnDefinition = "boolean default true")
     private Boolean active;
+    private Boolean hasDevice;
 
     @OneToMany(mappedBy ="user", cascade = CascadeType.ALL)
     @JsonBackReference
@@ -91,5 +92,13 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Boolean getHasDevice() {
+        return hasDevice;
+    }
+
+    public void setHasDevice(Boolean hasDevice) {
+        this.hasDevice = hasDevice;
     }
 }
