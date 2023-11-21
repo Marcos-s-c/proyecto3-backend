@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -37,10 +38,34 @@ public class WhatsAppService {
             if (userNextPeriod != null && userNextPeriod.isAfter(LocalDate.now())) {
                 String date = userNextPeriod.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
                 message = "success";
-                client.sendWAMessage(userPhoneNumber, date);
+                client.sendWAMessage(userPhoneNumber, date, "next_period");
             }else{
                 message="success";
-                client.sendWAMessage(userPhoneNumber, "no disponible");
+                client.sendWAMessage(userPhoneNumber, "no disponible", "next_period");
+            }
+        }
+        if(WAPreference.equals("0")){
+            message = "noWAPreferenceOn";
+        }
+        return message;
+    }
+
+    public String sendNextFertileDaysMessage() throws JsonProcessingException {
+        String userPhoneNumber = userService.getLoggedUser().getPhone();
+        List<LocalDate> userNextFertileDays = periodCriteriaService.calculateNextFertileDate();
+        UserPreferences userPreferences = notificationRepository.getPreferenciaNotificacionByEmail(userService.getLoggedUser().getEmail());
+        String WAPreference = userPreferences.getWapp();
+        String message = null;
+        if(WAPreference.equals("1")) {
+            if (userNextFertileDays.size() > 1  && userNextFertileDays.get(1).isAfter(LocalDate.now())) {
+                String date1 = userNextFertileDays.get(0).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
+                String date2 = userNextFertileDays.get(1).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
+
+                message = "success";
+                client.sendWAMessage(userPhoneNumber, date1 + " - " + date2, "next_fertile_days");
+            }else{
+                message="success";
+                client.sendWAMessage(userPhoneNumber, "no disponible", "next_fertile_days");
             }
         }
         if(WAPreference.equals("0")){

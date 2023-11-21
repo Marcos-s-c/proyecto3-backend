@@ -22,13 +22,13 @@ public class WhatsAppClient {
     private String whatsappToken;
 
 
-    public Boolean sendWAMessage(String toNumber, String text) throws JsonProcessingException {
+    public Boolean sendWAMessage(String toNumber, String text, String templateName) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer "+ whatsappToken);
-        WhatsAppMessageTemplate whatsAppMessageTemplate = getWhatsAppMessageTemplate(text);
+        WhatsAppMessageTemplate whatsAppMessageTemplate = getWhatsAppMessageTemplate(text, templateName);
         WhatsAppMessageRequest whatsAppMessageRequest = new WhatsAppMessageRequest("whatsapp", "+506" + toNumber, "template", whatsAppMessageTemplate);
 
         HttpEntity<String> requestHttpEntity = new HttpEntity<>(mapper.writeValueAsString(whatsAppMessageRequest), headers);
@@ -37,7 +37,7 @@ public class WhatsAppClient {
         return response != null;
     }
 
-    private WhatsAppMessageTemplate getWhatsAppMessageTemplate(String text) {
+    private WhatsAppMessageTemplate getWhatsAppMessageTemplate(String text, String templateName) {
         WhatsAppParameters whatsAppParameters = new WhatsAppParameters("text", text);
         List<WhatsAppParameters> parameters = new ArrayList<>();
         parameters.add(whatsAppParameters);
@@ -45,7 +45,7 @@ public class WhatsAppClient {
         List<WhatsAppComponent> components = new ArrayList<>();
         components.add(whatsAppComponent);
         WhatsAppLanguage whatsAppLanguage = new WhatsAppLanguage("es");
-        WhatsAppMessageTemplate whatsAppMessageTemplate= new WhatsAppMessageTemplate("next_period", whatsAppLanguage, components);
+        WhatsAppMessageTemplate whatsAppMessageTemplate= new WhatsAppMessageTemplate(templateName, whatsAppLanguage, components);
         return whatsAppMessageTemplate;
     }
 
