@@ -1,5 +1,6 @@
 package com.sistema.venus.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sistema.venus.clients.whatsapp.WhatsAppClient;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.domain.UserPreferences;
@@ -26,7 +27,7 @@ public class WhatsAppService {
     @Autowired
     private WhatsAppClient client;
 
-    public String sendNextPeriodMessage() {
+    public String sendNextPeriodMessage() throws JsonProcessingException {
         String userPhoneNumber = userService.getLoggedUser().getPhone();
         LocalDate userNextPeriod = periodCriteriaService.calculateDateNextPeriod();
         UserPreferences userPreferences = notificationRepository.getPreferenciaNotificacionByEmail(userService.getLoggedUser().getEmail());
