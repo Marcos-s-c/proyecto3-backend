@@ -11,9 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -33,13 +36,14 @@ public class NotificationService {
         periodColorNotification(periodCriterias);
         fluidColorNotification(periodCriterias);
         threeMonthsExcessiveBleedingNotification(periodCriterias);
+        periodExtension(periodCriterias);
     }
 
     private void threeMonthsExcessiveBleedingNotification(PeriodCriteria periodCriterias) {
         User user = userService.getLoggedUser();
 
         String text = "Su menstruación ha sido abundante durante los últimos 3 meses." +
-                " Un sangrado abundante puede ser indicador de problemas hormonales, miomas uterinos, patología endometrial, entre otras. \" +\n" +
+                " Un sangrado abundante puede ser indicador de problemas hormonales, miomas uterinos, patología endometrial, entre otras. " +
                 " Además, el sangrado excesivo prolongado puede desencadenar una anemia, por lo que es importante que consulte a su médico de cabecera o ginecólogo de confianza.";
         if(periodCriterias.getValue().equals("Muy abundante") && notificationsRepository.getNotificationByDateAndTextAndUser_id(Utils.getDateCurrentTimezone(),
                 text,
@@ -69,7 +73,7 @@ public class NotificationService {
         String text = createNotificationFlujo(periodCriterias.getValue());
         User user = userService.getLoggedUser();
         if(periodCriterias.getFieldName().equals("fluidColor") &&
-                Arrays.asList("gris", "amarillo", "verde", "transparente").contains(periodCriterias.getValue()) &&
+                Arrays.asList("gris", "amarillo", "verde", "Otro").contains(periodCriterias.getValue()) &&
                 notificationsRepository.getNotificationByDateAndTextAndUser_id(Utils.getDateCurrentTimezone(),
                         text,
                         user.getUser_id())  == null)
@@ -109,6 +113,41 @@ public class NotificationService {
         }
     }
 
+    private void periodExtension(PeriodCriteria periodCriteria){
+        User user = userService.getLoggedUser();
+        long day = 0;
+        if(periodCriteria.getValue().equals("fin")){
+            List<PeriodCriteria> previousCriterias = periodCriteriaRepository.findByUserIdAndDateBetween(user.getUser_id(), periodCriteria.getDate().minusDays(15),periodCriteria.getDate());
+            for (int i = 0; i < previousCriterias.size(); i++) {
+                if(previousCriterias.get(i).getValue().equals("inicio")){
+                    Duration duration = Duration.between(previousCriterias.get(i).getDate().atStartOfDay(), periodCriteria.getDate().atStartOfDay());
+                    day = duration.getSeconds() / (24 * 60 * 60);
+                    i = previousCriterias.size();
+                }
+            }
+            if(day == 1){
+                Notification notification = new Notification();
+                if(notification.getDate()==null){
+                    notification.setDate(Utils.getDateCurrentTimezone());
+                }
+                notification.setUser_id(user);
+                notification.setText("Su menstruación fue de 1 día. Existen diversas razones por las cuales esta situación puede presentarse, entre las cuales están: " +
+                        "efecto secundario de anticonceptivos, efecto secundario de algún otro medicamento, indicios de embarazo, problemas hormonales, problemas con nutrientes de la dieta, entre otras. " +
+                        "Es importante que consulte a su médico de cabecera o ginecólogo de confianza.");
+                notificationsRepository.save(notification);
+            }
+            if(day > 7){
+                Notification notification = new Notification();
+                if(notification.getDate()==null){
+                    notification.setDate(Utils.getDateCurrentTimezone());
+                }
+                notification.setUser_id(user);
+                notification.setText("Su menstruación fue mayor a 7 días. Una duración extensa de la menstruación puede ser indicador de problemas hormonales, miomas uterinos, patología endometrial, entre otras. " +
+                        "Además, el sangrado excesivo prolongado puede desencadenar una anemia, por lo que es importante que consulte a su médico de cabecera o ginecólogo de confianza.");
+                notificationsRepository.save(notification);
+            }
+        }
+    }
     public List<Notification> getNotifications(){
          User user = userService.getLoggedUser();
          Comparator<Notification> notificationComparator = Comparator.comparing(Notification::getId, Comparator.reverseOrder());
@@ -161,7 +200,7 @@ public class NotificationService {
                 text = "Su flujo cervical/vaginal fue de color verde, puede ser producto de una infección ginecológica. " +
                         "Es importante que consulte a su médico de cabecera o ginecólogo de confianza.";
                 break;
-            case "transparente":
+            case "Otro":
                 text = "Su flujo cervical/vaginal fue de un color diferente al blanco o transparente. " +
                         "Es importante que consulte a su médico de cabecera o ginecólogo de confianza.";
                 break;
