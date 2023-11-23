@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 public class AuthService {
 
     @Value("${frontend.host}")
-    String frontendHost;
+    private String frontendHost;
 
     @Autowired
     private OtpsService otpsService;
@@ -66,7 +66,7 @@ public class AuthService {
             message.setSubject("Soporte Venus");
             message.setText(String.format("Hola,\n" +
                     "Visite este enlace para recuperar la contraseña:\n" +
-                    "%s/password_reset/%s","http://localhost:4200/", codigo));
+                    "%s/password_reset/%s",frontendHost, codigo));
             javaMailSender.send(message);
             return ResponseEntity.ok("Success");
         } catch (Exception e) {

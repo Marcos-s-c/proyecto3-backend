@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 public class JwtUtils {
 
     private final String secret_key = "mysecretkeymysecretkeymysecretkeymysecretkeymysecretkeymysecretkey";
-    private long accessTokenValidity = 60*60*1000;
 
     private final JwtParser jwtParser;
 
@@ -28,7 +27,7 @@ public class JwtUtils {
     public String createToken(User user) {
         Claims claims = Jwts.claims().setSubject(user.getEmail());
         Date tokenCreateTime = new Date();
-        Date tokenValidity = new Date(tokenCreateTime.getTime() + TimeUnit.MINUTES.toMillis(accessTokenValidity));
+        Date tokenValidity = new Date(tokenCreateTime.getTime() + TimeUnit.MINUTES.toMillis(2*60*60*1000));
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(tokenValidity)
