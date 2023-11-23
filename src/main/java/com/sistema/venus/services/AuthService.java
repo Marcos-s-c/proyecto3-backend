@@ -66,7 +66,7 @@ public class AuthService {
             message.setSubject("Soporte Venus");
             message.setText(String.format("Hola,\n" +
                     "Visite este enlace para recuperar la contraseña:\n" +
-                    "%s/password_reset/%s",frontendHost, codigo));
+                    "https://venus-health.azurewebsites.net/password_reset/%s", codigo));
             javaMailSender.send(message);
             return ResponseEntity.ok("Success");
         } catch (Exception e) {
