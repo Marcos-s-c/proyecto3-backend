@@ -172,6 +172,34 @@ public class PeriodCriteriaService {
         return daysAverageVariationCycle;
     }
 
+    public Integer calculateAverageDurationCycle(){
+        User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<PeriodCriteria> periodCriteria = periodCriteriaRepository.getLast6PeriodCycles(user.getUser_id());
+        LocalDate nextPeriodStart = null;
+        LocalDate periodStart_1 = null;
+        LocalDate periodStart_2 = null;
+        Integer daysAverageDurationCycle = null;
+        List<LocalDate> startsCyclesList = new ArrayList<>();
+        List<Integer> cycleDuration = new ArrayList<>();
+        for(int i = 0; i< periodCriteria.size(); i++){
+            if(periodCriteria.get(i).getValue().equals("inicio")){
+                startsCyclesList.add(periodCriteria.get(i).getDate());
+            }
+        }
+        if(startsCyclesList.size()>2){
+            for(int i = 1; i< startsCyclesList.size(); i++){
+                periodStart_2 = startsCyclesList.get(i);
+                periodStart_1 = startsCyclesList.get(i-1);
+                cycleDuration.add((int) ChronoUnit.DAYS.between(periodStart_2, periodStart_1));
+            }
+            daysAverageDurationCycle = 0;
+            for(int i = 0; i< cycleDuration.size(); i++){
+                daysAverageDurationCycle += cycleDuration.get(i) ;
+            }
+            daysAverageDurationCycle = daysAverageDurationCycle/(cycleDuration.size());
+        }
+        return daysAverageDurationCycle;
+    }
     public List<PeriodCriteria> getAllPeriodCriteriaByUserIdAndCurrentMonth() {
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         LocalDate firstDayOfMonth = YearMonth.now().atDay(1);
@@ -221,18 +249,23 @@ public class PeriodCriteriaService {
             }
         }
 
-        if(ovulationDay != null && startFertileDay != null){
-            fertileRangeDays.add(startFertileDay);
-            fertileRangeDays.add(ovulationDay.plusDays(1));
+        Integer averageDurationCycle = calculateAverageDurationCycle();
+
+        if (averageDurationCycle != null) {
+            if(ovulationDay != null && startFertileDay != null){
+                fertileRangeDays.add(startFertileDay.plusDays(averageDurationCycle));
+                fertileRangeDays.add(ovulationDay.plusDays(1 + averageDurationCycle));
+            }
+            if(ovulationDay == null && startFertileDay != null){
+                fertileRangeDays.add(startFertileDay.plusDays(calculateAverageDurationCycle()));
+                fertileRangeDays.add(startFertileDay.plusDays(9 + averageDurationCycle));
+            }
+            if(ovulationDay != null && startFertileDay == null){
+                fertileRangeDays.add(ovulationDay.minusDays(8).plusDays(averageDurationCycle));
+                fertileRangeDays.add(ovulationDay.plusDays(1).plusDays(averageDurationCycle));
+            }
         }
-        if(ovulationDay == null && startFertileDay != null){
-            fertileRangeDays.add(startFertileDay);
-            fertileRangeDays.add(startFertileDay.plusDays(9));
-        }
-        if(ovulationDay != null && startFertileDay == null){
-            fertileRangeDays.add(ovulationDay.minusDays(8));
-            fertileRangeDays.add(ovulationDay.plusDays(1));
-        }
+
         return fertileRangeDays; 
     }
 }

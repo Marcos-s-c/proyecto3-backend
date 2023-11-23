@@ -35,5 +35,16 @@ public class WhatsAppController {
             throw e;
         }
     }
-
+    @PostMapping("sendMessage/nextFertileDays")
+    public ResponseEntity<Object> sendMessageNextFertileDays() throws JsonProcessingException {
+        try {
+            String result = whatsAppService.sendNextFertileDaysMessage();
+            Map<String, Object> map = new HashMap<>();
+            map.put("result", result);
+            return ResponseEntity.ok().body(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }
