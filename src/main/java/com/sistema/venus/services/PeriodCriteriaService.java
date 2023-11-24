@@ -56,32 +56,48 @@ public class PeriodCriteriaService {
         return periodCriteriaRepository.getPeriodCriteriaByUserId(Long.parseLong(user.getUser_id().toString()));
     }
 
-    /** Validación para ingresar datos relacionados al ciclo menstrual */
-    public String isInputPeriodCycleValid(String periodCycleValue, LocalDate periodDate) {
+    /** Validation for periodCriteria data*/
+    public String isInputPeriodCycleValid(String periodCycleValueParameter, LocalDate periodDateParameter) {
         User user = userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        PeriodCriteria periodCriteria = periodCriteriaRepository
+
+        PeriodCriteria periodCriteriaLastEntry = periodCriteriaRepository
                 .getLastEntryOfPeriodCriteriaByUserIdAndFieldName("periodCycle", user.getUser_id());
         String message = "";
-        if (periodCriteria != null && !periodCycleValue.equals("NA")) {
-            if (periodDate.isBefore(periodCriteria.getDate())) {
-                message = "No fue fue posible guardar los datos. La fecha no es válida. Hay ciclos posteriores a esa fecha. ";
+
+
+        if(periodCriteriaLastEntry != null && periodCriteriaLastEntry.getDate().equals(periodDateParameter) ){
+            if(!periodCriteriaLastEntry.getValue().equals(periodCycleValueParameter) && !periodCycleValueParameter.equals("NA")){
+                message = "No fue posible cambiar el dato porque genera inconsistencias.";
             }
-            if (periodCriteria.getValue().equals("inicio") && periodCycleValue.equals(periodCriteria.getValue())) {
-                message += "No fue fue posible guardar los datos. No hay registro de finalización del ciclo menstrual anterior. ";
-            }
-            if (periodCriteria.getValue().equals("fin") && periodCycleValue.equals(periodCriteria.getValue())) {
-                message += "No fue fue posible guardar los datos. No hay registro de inicio del ciclo menstrual. ";
+        }else{
+            if (periodCriteriaLastEntry != null && !periodCycleValueParameter.equals("NA")) {
+                /**Saving "inicio" or "fin" is not allow before last entry date of "inicio" or "fin"**/
+                if (periodDateParameter.isBefore(periodCriteriaLastEntry.getDate())) {
+                    message = "No fue posible guardar los datos. La fecha no es válida. Hay ciclos posteriores a esa fecha. ";
+                }
+                /**Saving **/
+                if (periodCriteriaLastEntry.getValue().equals("inicio") && periodCycleValueParameter.equals(periodCriteriaLastEntry.getValue())) {
+                    message += "No fue posible guardar los datos. No hay registro de finalización del ciclo menstrual anterior. ";
+                }
+                if (periodCriteriaLastEntry.getValue().equals("fin") && periodCycleValueParameter.equals(periodCriteriaLastEntry.getValue())) {
+                    message += "No fue posible guardar los datos. No hay registro de inicio del ciclo menstrual. ";
+                }
             }
         }
 
-        PeriodCriteria periodCycleByDateAndUser = periodCriteriaRepository.getPeriodCycleByDateAndUser( user.getUser_id(), periodDate);
-        if(periodCycleValue.equals("NA") && periodCycleByDateAndUser != null &&
-                (periodCycleByDateAndUser.getValue().equals("inicio") || periodCycleByDateAndUser.getValue().equals("inicio")) && !periodCriteria.getDate().equals(periodCycleByDateAndUser.getDate())){
+        PeriodCriteria periodCycleByDateAndUser = periodCriteriaRepository.getPeriodCycleByDateAndUser(user.getUser_id(), periodDateParameter);
+        if(periodCycleValueParameter.equals("NA") && periodCycleByDateAndUser != null &&
+                (periodCycleByDateAndUser.getValue().equals("inicio") || periodCycleByDateAndUser.getValue().equals("fin"))
+                && !periodCriteriaLastEntry.getDate().equals(periodCycleByDateAndUser.getDate())){
             message += "No fue fue posible guardar los datos, porque la solicitud puede generar inconsistencias. ";
         }
 
+        if(periodCycleByDateAndUser != null && periodCycleByDateAndUser.getDate().equals(periodDateParameter) && periodCycleByDateAndUser.getValue().equals(periodCycleValueParameter)){
+            message = "success";
+        }
+
         if (message.equals("")) {
-            message += "success";
+            message = "success";
         }
         return message;
     }
