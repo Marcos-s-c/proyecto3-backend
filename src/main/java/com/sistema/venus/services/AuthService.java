@@ -1,17 +1,9 @@
 package com.sistema.venus.services;
 
-import com.sendgrid.Method;
-import com.sendgrid.Request;
-import com.sendgrid.Response;
-import com.sendgrid.SendGrid;
-import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Content;
-import com.sendgrid.helpers.mail.objects.Email;
 import com.sistema.venus.domain.*;
 import com.sistema.venus.util.Utils;
 import com.sistema.venus.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -25,10 +17,6 @@ import java.time.LocalDateTime;
 
 @Service
 public class AuthService {
-
-    @Value("${frontend.host}")
-    private String frontendHost;
-
     @Autowired
     private OtpsService otpsService;
 

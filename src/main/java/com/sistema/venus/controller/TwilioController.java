@@ -1,17 +1,13 @@
 package com.sistema.venus.controller;
 
-import com.sistema.venus.domain.User;
+import com.infobip.ApiException;
 import com.sistema.venus.domain.UserPreferences;
 import com.sistema.venus.repo.NotificacionesRepo;
-import com.sistema.venus.repo.NotificationsRepository;
-import com.sistema.venus.repo.UserRepository;
 import com.sistema.venus.services.PeriodCriteriaService;
-import com.sistema.venus.services.TwilioService;
-import com.sistema.venus.services.UserPreferenceService;
+import com.sistema.venus.services.SMSService;
 import com.sistema.venus.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +25,7 @@ import java.util.Map;
 public class TwilioController {
 
     @Autowired
-    private TwilioService twilioService;
+    private SMSService SMSService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -37,7 +33,7 @@ public class TwilioController {
     @Autowired
     private NotificacionesRepo notificationRepository;
     @PostMapping("sendMessage/nextPeriod")
-    public ResponseEntity<Object> sendMessageNextPeriod() {
+    public ResponseEntity<Object> sendMessageNextPeriod() throws ApiException {
         try {
             String userPhoneNumber = userService.getLoggedUser().getPhone();
             LocalDate userNextPeriod = periodCriteriaService.calculateDateNextPeriod();
@@ -50,7 +46,7 @@ public class TwilioController {
                 }else{
                     message = "Venus informa: No hay datos pronóstico repecto a su próxima menstruación.";
                 }
-                twilioService.sendMessage(userPhoneNumber, message);
+                SMSService.sendMessage(userPhoneNumber, message);
             }
             if(smsPreference.equals("0")){
                 message = "Debe ajustar sus preferencias de notificaciones, para recibir mensajes de texto.";

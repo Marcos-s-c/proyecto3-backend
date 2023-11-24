@@ -20,7 +20,6 @@ public class PeriodCriteriaService {
     private PeriodCriteriaRepository periodCriteriaRepository;
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private NotificationService notificationsService;
 
