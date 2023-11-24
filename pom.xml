@@ -95,6 +95,7 @@
 		</dependency>
 
 
+		<!--
 		<dependency>
 			<groupId>com.infobip</groupId>
 			<artifactId>infobip-api-java-client</artifactId>
@@ -106,7 +107,7 @@
 			<artifactId>okhttp</artifactId>
 			<version>4.9.3</version>
 		</dependency>
-
+        -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpmime</artifactId>
