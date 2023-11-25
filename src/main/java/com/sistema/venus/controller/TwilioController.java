@@ -1,5 +1,6 @@
 package com.sistema.venus.controller;
 
+import com.infobip.ApiException;
 import com.sistema.venus.domain.UserPreferences;
 import com.sistema.venus.repo.NotificacionesRepo;
 import com.sistema.venus.services.PeriodCriteriaService;
@@ -32,7 +33,7 @@ public class TwilioController {
     @Autowired
     private NotificacionesRepo notificationRepository;
     @PostMapping("sendMessage/nextPeriod")
-    public ResponseEntity<Object> sendMessageNextPeriod() {
+    public ResponseEntity<Object> sendMessageNextPeriod() throws ApiException {
         try {
             String userPhoneNumber = userService.getLoggedUser().getPhone();
             LocalDate userNextPeriod = periodCriteriaService.calculateDateNextPeriod();
@@ -45,7 +46,7 @@ public class TwilioController {
                 }else{
                     message = "Venus informa: No hay datos pronóstico repecto a su próxima menstruación.";
                 }
-                //SMSService.sendMessage(userPhoneNumber, message);
+                SMSService.sendMessage(userPhoneNumber, message);
             }
             if(smsPreference.equals("0")){
                 message = "Debe ajustar sus preferencias de notificaciones, para recibir mensajes de texto.";
