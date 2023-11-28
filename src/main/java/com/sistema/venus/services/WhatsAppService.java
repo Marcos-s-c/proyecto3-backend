@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -36,7 +37,7 @@ public class WhatsAppService {
         String message = null;
         if(WAPreference.equals("1")) {
             if (userNextPeriod != null && userNextPeriod.isAfter(LocalDate.now())) {
-                String date = userNextPeriod.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
+                String date = userNextPeriod.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(new Locale("es", "ES")));
                 message = "success";
                 client.sendWAMessage(userPhoneNumber, date, "next_period");
             }else{
@@ -58,8 +59,8 @@ public class WhatsAppService {
         String message = null;
         if(WAPreference.equals("1")) {
             if (userNextFertileDays.size() > 1  && userNextFertileDays.get(1).isAfter(LocalDate.now())) {
-                String date1 = userNextFertileDays.get(0).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
-                String date2 = userNextFertileDays.get(1).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
+                String date1 = userNextFertileDays.get(0).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(new Locale("es", "ES")));
+                String date2 = userNextFertileDays.get(1).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(new Locale("es", "ES")));
 
                 message = "success";
                 client.sendWAMessage(userPhoneNumber, date1 + " - " + date2, "next_fertile_days");
