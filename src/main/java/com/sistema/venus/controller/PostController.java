@@ -53,9 +53,9 @@ public class PostController {
     }
 
     @GetMapping("getAllPosts")
-    public List<Post> getAllPosts() {
+    public List<Post> getAllPosts(@RequestParam(required = false) String searchParam) {
         try {
-            return postService.getAllPosts();
+            return postService.getAllPosts(searchParam);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

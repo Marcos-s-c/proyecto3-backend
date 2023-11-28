@@ -1,5 +1,6 @@
 package com.sistema.venus.services;
 
+import com.ctc.wstx.util.StringUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sistema.venus.domain.Post;
@@ -7,6 +8,7 @@ import com.sistema.venus.domain.User;
 import com.sistema.venus.domain.UserPreferences;
 import com.sistema.venus.repo.PostRepository;
 import com.sistema.venus.util.Utils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -30,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -124,8 +127,10 @@ public class PostService {
         return url.substring(1, url.length() - 1);
     }
 
-    public List<Post> getAllPosts() {
-        List<Post> posts = getSortedPosts();
+    public List<Post> getAllPosts(String searchParam) {
+        List<Post> posts = StringUtils.isBlank(searchParam) ? getSortedPosts(): getSortedPosts()
+                .stream().filter(post -> post.getSubject().contains(searchParam))
+                .collect(Collectors.toList());
         setLikes(posts);
         return posts;
     }
