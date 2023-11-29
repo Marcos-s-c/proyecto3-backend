@@ -127,8 +127,8 @@ public class PostService {
         return url.substring(1, url.length() - 1);
     }
 
-    public List<Post> getAllPosts(String searchParam) {
-        List<Post> posts = StringUtils.isBlank(searchParam) ? getSortedPosts(): getSortedPosts()
+    public List<Post> getAllPosts(String searchParam, String sortBy) {
+        List<Post> posts = StringUtils.isBlank(searchParam) ? getSortedPosts(sortBy): getSortedPosts(sortBy)
                 .stream().filter(post -> post.getSubject().contains(searchParam))
                 .collect(Collectors.toList());
         setLikes(posts);
@@ -137,15 +137,22 @@ public class PostService {
 
     private void setLikes(List<Post> posts) {
         posts.forEach(post -> {
+            post.setLikeAmount(post.getLikes().size());
             if(post.getLikes().stream().anyMatch(userPreferences -> userPreferences.getEmailId().equals(userService.getLoggedUser().getEmail()))){
                 post.setLikedByLoggedUser(true);
             }
         });
     }
 
-    private List<Post> getSortedPosts() {
+    private List<Post> getSortedPosts(String sortBy) {
         List<Post> posts = postRepository.findAll();
-        Comparator<Post> postComparator = Comparator.comparing(Post::getDate, Comparator.reverseOrder());
+        Comparator<Post> postComparator;
+        if("likes".equals(sortBy)){
+            postComparator = Comparator.comparing(post -> post.getLikes().size(), Comparator.reverseOrder());
+        }else{
+            postComparator = Comparator.comparing(Post::getDate, Comparator.reverseOrder());
+        }
+
         posts.sort(postComparator);
         return posts;
     }
