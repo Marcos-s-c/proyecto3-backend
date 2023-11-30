@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -42,9 +43,39 @@ public class TwilioController {
             String message = null;
             if(smsPreference.equals("1")){
                 if (userNextPeriod != null  && userNextPeriod.isAfter(LocalDate.now()) ) {
-                    message = "Venus informa: Su próximo periodo se pronostica para el: " + userNextPeriod.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
+                    message = "Venus informa: Su próximo periodo se pronostica para el: " + userNextPeriod;
                 }else{
                     message = "Venus informa: No hay datos pronóstico repecto a su próxima menstruación.";
+                }
+                SMSService.sendMessage(userPhoneNumber, message);
+            }
+            if(smsPreference.equals("0")){
+                message = "Debe ajustar sus preferencias de notificaciones, para recibir mensajes de texto.";
+            }
+            Map<String, Object> map = new HashMap<>();
+            map.put("result", message);
+            return ResponseEntity.ok().body(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @PostMapping("sendMessage/nextFertileDay")
+    public ResponseEntity<Object> nextFertileDay() throws ApiException {
+        try {
+            String userPhoneNumber = userService.getLoggedUser().getPhone();
+            List<LocalDate> userNextFertileDays = periodCriteriaService.calculateNextFertileDate();
+            UserPreferences userPreferences = notificationRepository.getPreferenciaNotificacionByEmail(userService.getLoggedUser().getEmail());
+            String smsPreference = userPreferences.getSms();
+            String message = null;
+            if(smsPreference.equals("1")){
+                if (userNextFertileDays.size() > 1  && userNextFertileDays.get(1).isAfter(LocalDate.now())) {
+                    LocalDate date1 = userNextFertileDays.get(0);
+                    LocalDate date2 = userNextFertileDays.get(1);
+                    message = String.format("Venus informa: Sus próximos días fértiles se pronostican para ser los siguientes: %s - %s",date1,date2);
+                }else{
+                    message = "Venus informa: No hay datos pronóstico repecto a sus próximos días fértiles";
                 }
                 SMSService.sendMessage(userPhoneNumber, message);
             }

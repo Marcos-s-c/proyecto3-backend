@@ -36,9 +36,8 @@ public class WhatsAppService {
         String message = null;
         if(WAPreference.equals("1")) {
             if (userNextPeriod != null && userNextPeriod.isAfter(LocalDate.now())) {
-                String date = userNextPeriod.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
                 message = "success";
-                client.sendWAMessage(userPhoneNumber, date, "next_period");
+                client.sendWAMessage(userPhoneNumber, userNextPeriod.toString(), "next_period");
             }else{
                 message="success";
                 client.sendWAMessage(userPhoneNumber, "no disponible", "next_period");
@@ -58,8 +57,8 @@ public class WhatsAppService {
         String message = null;
         if(WAPreference.equals("1")) {
             if (userNextFertileDays.size() > 1  && userNextFertileDays.get(1).isAfter(LocalDate.now())) {
-                String date1 = userNextFertileDays.get(0).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
-                String date2 = userNextFertileDays.get(1).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL));
+                LocalDate date1 = userNextFertileDays.get(0);
+                LocalDate date2 = userNextFertileDays.get(1);
 
                 message = "success";
                 client.sendWAMessage(userPhoneNumber, date1 + " - " + date2, "next_fertile_days");
