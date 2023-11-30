@@ -37,6 +37,7 @@ public class NotificationService {
         fluidColorNotification(periodCriterias);
         threeMonthsExcessiveBleedingNotification(periodCriterias);
         periodExtension(periodCriterias);
+        lastPeriod(periodCriterias);
     }
 
     private void threeMonthsExcessiveBleedingNotification(PeriodCriteria periodCriterias) {
@@ -147,6 +148,25 @@ public class NotificationService {
                 notificationsRepository.save(notification);
             }
         }
+    }
+
+    private void lastPeriod(PeriodCriteria periodCriteria){
+        User user = userService.getLoggedUser();
+        List<PeriodCriteria> previousCriterias = periodCriteriaRepository.findByUserIdAndDateBetween(user.getUser_id(), periodCriteria.getDate().minusDays(45),periodCriteria.getDate());
+        List<PeriodCriteria> allCriterias = periodCriteriaRepository.findAll();
+        if(previousCriterias.size() == 0 && allCriterias.size() >= 1){
+            Notification notification = new Notification();
+            if(notification.getDate()==null){
+                notification.setDate(Utils.getDateCurrentTimezone());
+            }
+            notification.setUser_id(user);
+            notification.setText("Su ciclo femenino superó los 45 días respecto a su último día de menstruación. " +
+                    "Existen diversas razones por las cuales el ciclo femenino puede extenderse, entre las cuales están: " +
+                    "embarazo, menopausia, perimenopausia, problemas hormonales, problemas con nutrientes de la dieta, entre otras. " +
+                    "Es importante que consulte a su médico de cabecera o ginecólogo de confianza.");
+            notificationsRepository.save(notification);
+        }
+
     }
     public List<Notification> getNotifications(){
          User user = userService.getLoggedUser();
