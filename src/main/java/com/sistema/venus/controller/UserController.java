@@ -3,6 +3,7 @@ package com.sistema.venus.controller;
 import com.sistema.venus.domain.UserPreferences;
 import com.sistema.venus.domain.ResetContraRequestBody;
 import com.sistema.venus.domain.User;
+import com.sistema.venus.domain.UserStatus;
 import com.sistema.venus.services.UserPreferenceService;
 import com.sistema.venus.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,16 @@ public class UserController {
     public ResponseEntity<List<User>> getAllUsers(){
         try{
             return ResponseEntity.ok(userService.getAllUsers());
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @PutMapping(value = "/changeStatus")
+    public ResponseEntity<Integer> changeUserStatus(@RequestBody UserStatus userStatus){
+        try{
+            return ResponseEntity.ok(userService.changeUserStatus(userStatus));
         }catch (Exception e){
             e.printStackTrace();
             throw e;
