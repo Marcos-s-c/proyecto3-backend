@@ -1,5 +1,6 @@
 package com.sistema.venus.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.infobip.ApiClient;
 import com.infobip.ApiException;
 import com.infobip.ApiKey;
@@ -8,9 +9,14 @@ import com.infobip.api.SmsApi;
 import com.infobip.model.SmsAdvancedTextualRequest;
 import com.infobip.model.SmsDestination;
 import com.infobip.model.SmsTextualMessage;
+import com.sistema.venus.domain.UserPreferences;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Collections;
+import java.util.List;
 
 @Service
 public class SMSService {
