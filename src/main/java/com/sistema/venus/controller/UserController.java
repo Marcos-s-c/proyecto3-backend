@@ -64,9 +64,19 @@ public class UserController {
 
     @PostMapping(value = "preferencias",consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<UserPreferences> addPreferencia(@RequestBody UserPreferences body){
-        System.out.println("pref"+body);
         try{
             return ResponseEntity.ok(prefNotService.addPrefNotificacion(body));
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @PostMapping(value = "frecuencias",consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<UserPreferences> addFrecuencia(@RequestBody UserPreferences body){
+        System.out.println("@PostMapping(value = preferencias: "+body);
+        try{
+            return ResponseEntity.ok(prefNotService.addFrecuencia(body));
         }catch (Exception e){
             e.printStackTrace();
             throw e;

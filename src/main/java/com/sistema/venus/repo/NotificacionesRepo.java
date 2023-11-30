@@ -21,4 +21,11 @@ public interface NotificacionesRepo extends JpaRepository<UserPreferences, Integ
             @Param("wapp") String wapp
     );
 
+    @Modifying
+    @Query("update UserPreferences n set n.anticipation_notice = :anticipation_notice where n.emailId = :emailId")
+    int actualizaPreferencia(
+            @Param("emailId") String emailId,
+            @Param("anticipation_notice") Integer anticipation_notice
+    );
+
 }

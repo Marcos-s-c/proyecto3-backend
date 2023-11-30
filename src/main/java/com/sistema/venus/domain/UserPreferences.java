@@ -2,7 +2,6 @@ package com.sistema.venus.domain;
 
 import com.fasterxml.jackson.annotation.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -20,6 +19,7 @@ public class UserPreferences {
     private String wapp;
     private String sms;
     private String email;
+    private int anticipation_notice;
 
     public UserPreferences(String email){
         this.emailId = email;
@@ -37,6 +37,8 @@ public class UserPreferences {
                 ", wapp='" + wapp + '\'' +
                 ", sms='" + sms + '\'' +
                 ", email='" + email + '\'' +
+                ", anticipation_notice=" + anticipation_notice +
+                ", likedPosts=" + likedPosts +
                 '}';
     }
 
@@ -86,5 +88,13 @@ public class UserPreferences {
 
     public void setLikedPosts(Set<Post> likedPosts) {
         this.likedPosts = likedPosts;
+    }
+
+    public int getAnticipation_notice() {
+        return anticipation_notice;
+    }
+
+    public void setAnticipation_notice(int frecuenciaNotificaciones) {
+        this.anticipation_notice = frecuenciaNotificaciones;
     }
 }
