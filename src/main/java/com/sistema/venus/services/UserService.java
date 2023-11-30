@@ -2,6 +2,7 @@ package com.sistema.venus.services;
 
 import com.sistema.venus.domain.ResetContraRequestBody;
 import com.sistema.venus.domain.User;
+import com.sistema.venus.domain.UserStatus;
 import com.sistema.venus.repo.UserRepository;
 import com.sistema.venus.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 public class UserService implements UserDetailsService {
+
     @Autowired
     private UserRepository userRepository;
 
@@ -98,5 +101,16 @@ public class UserService implements UserDetailsService {
 
     public User getLoggedUser(){
         return userRepository.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
+    public List<User> getAllUsers(){
+        List<User> users = userRepository.findAll();
+        users.forEach(user -> user.setPassword(null));
+        return users;
+    }
+
+
+    public int changeUserStatus(UserStatus body){
+        return userRepository.changeUserStatus(body.getUser_id(), body.getActive());
     }
 }
