@@ -1,5 +1,6 @@
 package com.sistema.venus.services;
 
+import com.ctc.wstx.util.StringUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sistema.venus.domain.Post;
@@ -7,6 +8,7 @@ import com.sistema.venus.domain.User;
 import com.sistema.venus.domain.UserPreferences;
 import com.sistema.venus.repo.PostRepository;
 import com.sistema.venus.util.Utils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -30,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -124,23 +127,32 @@ public class PostService {
         return url.substring(1, url.length() - 1);
     }
 
-    public List<Post> getAllPosts() {
-        List<Post> posts = getSortedPosts();
+    public List<Post> getAllPosts(String searchParam, String sortBy) {
+        List<Post> posts = StringUtils.isBlank(searchParam) ? getSortedPosts(sortBy): getSortedPosts(sortBy)
+                .stream().filter(post -> post.getSubject().contains(searchParam))
+                .collect(Collectors.toList());
         setLikes(posts);
         return posts;
     }
 
     private void setLikes(List<Post> posts) {
         posts.forEach(post -> {
+            post.setLikeAmount(post.getLikes().size());
             if(post.getLikes().stream().anyMatch(userPreferences -> userPreferences.getEmailId().equals(userService.getLoggedUser().getEmail()))){
                 post.setLikedByLoggedUser(true);
             }
         });
     }
 
-    private List<Post> getSortedPosts() {
+    private List<Post> getSortedPosts(String sortBy) {
         List<Post> posts = postRepository.findAll();
-        Comparator<Post> postComparator = Comparator.comparing(Post::getDate, Comparator.reverseOrder());
+        Comparator<Post> postComparator;
+        if("likes".equals(sortBy)){
+            postComparator = Comparator.comparing(post -> post.getLikes().size(), Comparator.reverseOrder());
+        }else{
+            postComparator = Comparator.comparing(Post::getDate, Comparator.reverseOrder());
+        }
+
         posts.sort(postComparator);
         return posts;
     }

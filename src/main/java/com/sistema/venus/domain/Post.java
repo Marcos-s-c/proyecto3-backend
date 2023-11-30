@@ -22,6 +22,8 @@ public class Post {
     private String content;
     @Transient
     private Boolean likedByLoggedUser;
+    @Transient
+    private Integer likeAmount;
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate date;
 
@@ -96,5 +98,13 @@ public class Post {
 
     public void setLikes(Set<UserPreferences> likes) {
         this.likes = likes;
+    }
+
+    public Integer getLikeAmount() {
+        return likeAmount;
+    }
+
+    public void setLikeAmount(Integer likeAmount) {
+        this.likeAmount = likeAmount;
     }
 }
