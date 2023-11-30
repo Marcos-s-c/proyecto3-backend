@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -59,7 +60,6 @@ public class WhatsAppService {
             if (userNextFertileDays.size() > 1  && userNextFertileDays.get(1).isAfter(LocalDate.now())) {
                 LocalDate date1 = userNextFertileDays.get(0);
                 LocalDate date2 = userNextFertileDays.get(1);
-
                 message = "success";
                 client.sendWAMessage(userPhoneNumber, date1 + " - " + date2, "next_fertile_days");
             }else{
