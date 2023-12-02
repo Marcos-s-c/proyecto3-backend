@@ -1,6 +1,7 @@
 package com.sistema.venus.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -82,6 +83,18 @@ public class User {
         return medications;
     }
 
+    public User(Long user_id, String email, String password, String name, String rol, Boolean active, Boolean hasDevice, List<Medication> medications, String phone) {
+        this.user_id = user_id;
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.rol = rol;
+        this.active = active;
+        this.hasDevice = hasDevice;
+        this.medications = medications;
+        this.phone = phone;
+    }
+
     public void setMedications(List<Medication> medications) {
         this.medications = medications;
     }
@@ -96,6 +109,15 @@ public class User {
 
     public Boolean getHasDevice() {
         return hasDevice;
+    }
+
+    public User(Long user_id, String email, String name, Boolean active, Boolean hasDevice, String phone) {
+        this.user_id = user_id;
+        this.email = email;
+        this.name = name;
+        this.active = active;
+        this.hasDevice = hasDevice;
+        this.phone = phone;
     }
 
     public void setHasDevice(Boolean hasDevice) {

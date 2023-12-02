@@ -3,6 +3,7 @@ package com.sistema.venus.controller;
 import com.sistema.venus.domain.UserPreferences;
 import com.sistema.venus.domain.ResetContraRequestBody;
 import com.sistema.venus.domain.User;
+import com.sistema.venus.domain.UserStatus;
 import com.sistema.venus.services.UserPreferenceService;
 import com.sistema.venus.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -64,7 +66,6 @@ public class UserController {
 
     @PostMapping(value = "preferencias",consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<UserPreferences> addPreferencia(@RequestBody UserPreferences body){
-        System.out.println("pref"+body);
         try{
             return ResponseEntity.ok(prefNotService.addPrefNotificacion(body));
         }catch (Exception e){
@@ -72,11 +73,44 @@ public class UserController {
             throw e;
         }
     }
+
+    @PostMapping(value = "frecuencias",consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<UserPreferences> addFrecuencia(@RequestBody UserPreferences body){
+        System.out.println("@PostMapping(value = preferencias: "+body);
+        try{
+            return ResponseEntity.ok(prefNotService.addFrecuencia(body));
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
     @GetMapping(value = "preferencias/{email}")
     public ResponseEntity<UserPreferences> getPreferenciaNotificacionByEmail(@PathVariable(value = "email")String email){
-        System.out.println("emaul + " + email);
         try{
             return ResponseEntity.ok(prefNotService.getPreferenciaNotificacionByEmail(email));
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @GetMapping(value = "/all")
+    public ResponseEntity<List<User>> getAllUsers(@RequestParam(name = "search", required = false) String userSearch){
+        try{
+            if(userSearch != null && !userSearch.isEmpty()){
+                return ResponseEntity.ok(userService.searchUser(userSearch));
+            }
+            return ResponseEntity.ok(userService.getAllUsers());
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @PutMapping(value = "/changeStatus")
+    public ResponseEntity<Integer> changeUserStatus(@RequestBody UserStatus userStatus){
+        try{
+            return ResponseEntity.ok(userService.changeUserStatus(userStatus));
         }catch (Exception e){
             e.printStackTrace();
             throw e;

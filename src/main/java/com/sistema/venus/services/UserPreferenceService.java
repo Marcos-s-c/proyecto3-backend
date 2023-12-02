@@ -28,6 +28,23 @@ public class UserPreferenceService {
             }
         }
     }
+
+    @Transactional
+    public UserPreferences addFrecuencia(UserPreferences n) {
+        String emailId = n.getEmailId();
+
+        UserPreferences existingNotificacion = repo.getPreferenciaNotificacionByEmail(emailId);
+
+        if (existingNotificacion == null) {
+            return repo.save(n);
+        } else {
+            if(repo.actualizaPreferencia(emailId, n.getAnticipation_notice()) == 1){
+                return n;
+            }else {
+                return new UserPreferences();
+            }
+        }
+    }
     public UserPreferences getPreferenciaNotificacionByEmail(String email){
         return repo.getPreferenciaNotificacionByEmail(email);
     }

@@ -1,7 +1,5 @@
 package com.sistema.venus.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sistema.venus.domain.LoginRequest;
 import com.sistema.venus.domain.Notification;
 import com.sistema.venus.domain.PeriodCriteria;
@@ -11,13 +9,10 @@ import com.sistema.venus.repo.PeriodCriteriaRepository;
 import com.sistema.venus.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -59,6 +54,7 @@ public class NotificationService {
         threeMonthsExcessiveBleedingNotification(periodCriterias);
         periodExtension(periodCriterias);
         lastPeriod(periodCriterias);
+        periodVariation(periodCriterias);
     }
 
     private void threeMonthsExcessiveBleedingNotification(PeriodCriteria periodCriterias) {
@@ -137,17 +133,17 @@ public class NotificationService {
 
     private void periodExtension(PeriodCriteria periodCriteria){
         User user = userService.getLoggedUser();
-        long day = 0;
         if(periodCriteria.getValue().equals("fin")){
+            long day = 5;
             List<PeriodCriteria> previousCriterias = periodCriteriaRepository.findByUserIdAndDateBetween(user.getUser_id(), periodCriteria.getDate().minusDays(15),periodCriteria.getDate());
-            for (int i = 0; i < previousCriterias.size(); i++) {
+            for (int i = previousCriterias.size()-1; i > 0; i--) {
                 if(previousCriterias.get(i).getValue().equals("inicio")){
                     Duration duration = Duration.between(previousCriterias.get(i).getDate().atStartOfDay(), periodCriteria.getDate().atStartOfDay());
                     day = duration.getSeconds() / (24 * 60 * 60);
-                    i = previousCriterias.size();
+                    i = 0;
                 }
             }
-            if(day == 1){
+            if(day <= 1){
                 Notification notification = new Notification();
                 if(notification.getDate()==null){
                     notification.setDate(Utils.getDateCurrentTimezone());
@@ -174,7 +170,7 @@ public class NotificationService {
     private void lastPeriod(PeriodCriteria periodCriteria){
         User user = userService.getLoggedUser();
         List<PeriodCriteria> previousCriterias = periodCriteriaRepository.findByUserIdAndDateBetween(user.getUser_id(), periodCriteria.getDate().minusDays(45),periodCriteria.getDate());
-        List<PeriodCriteria> allCriterias = periodCriteriaRepository.findAll();
+        List<PeriodCriteria> allCriterias = periodCriteriaRepository.getPeriodCriteriaByUserId(user.getUser_id());
         if(previousCriterias.size() == 0 && allCriterias.size() >= 1){
             Notification notification = new Notification();
             if(notification.getDate()==null){
@@ -189,6 +185,42 @@ public class NotificationService {
         }
 
     }
+
+    private void periodVariation(PeriodCriteria periodCriteria){
+        int count = 0;
+        Long periodDays1 = 12345678910L;
+        Long periodDays2 = 12345678910L;
+        LocalDate criteriaDate = periodCriteria.getDate();
+        User user = userService.getLoggedUser();
+        List<PeriodCriteria> previousCriterias = periodCriteriaRepository.getPeriodCriteriaByUserId(user.getUser_id());
+        if(periodCriteria.getValue().equals("inicio")){
+            for (int i = previousCriterias.size()-1; i > 0 ; i--) {
+                if(previousCriterias.get(i).getValue().equals("inicio") && count < 1){
+                    count ++;
+                    criteriaDate = previousCriterias.get(i).getDate();
+                    periodDays1 = periodCriteria.getDate().toEpochDay() - previousCriterias.get(i).getDate().toEpochDay();
+                    i--;
+                }
+                if(previousCriterias.get(i).getValue().equals("inicio") && count < 2){
+                    count ++;
+                    periodDays2 = criteriaDate.toEpochDay() - previousCriterias.get(i).getDate().toEpochDay();
+                }
+            }
+            Long result = periodDays1 - periodDays2;
+            if(result >= 9){
+                Notification notification = new Notification();
+                if(notification.getDate()==null){
+                    notification.setDate(Utils.getDateCurrentTimezone());
+                }
+                notification.setUser_id(user);
+                notification.setText("La extensión de su ciclo femenino ha variado en al menos 9 días respecto al anterior. " +
+                        " Si estas variaciones se repiten con frecuencia, es importante que consulte a su médico de cabecera o ginecólogo de confianza");
+                notificationsRepository.save(notification);
+            }
+        }
+
+    }
+
     public List<Notification> getNotifications(){
          User user = userService.getLoggedUser();
          Comparator<Notification> notificationComparator = Comparator.comparing(Notification::getId, Comparator.reverseOrder());
