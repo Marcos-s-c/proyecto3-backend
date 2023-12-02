@@ -1,9 +1,6 @@
 package com.sistema.venus.services;
 
-import com.sistema.venus.domain.LoginRequest;
-import com.sistema.venus.domain.Notification;
-import com.sistema.venus.domain.PeriodCriteria;
-import com.sistema.venus.domain.User;
+import com.sistema.venus.domain.*;
 import com.sistema.venus.repo.NotificationsRepository;
 import com.sistema.venus.repo.PeriodCriteriaRepository;
 import com.sistema.venus.util.Utils;
@@ -19,10 +16,10 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -41,9 +38,10 @@ public class NotificationService {
     private String tempFolder;
     @Autowired
     private RestTemplate restTemplate;
-
     @Autowired
     private JavaMailSender javaMailSender;
+    @Autowired
+    private UserPreferenceService userPreferenceService;
 
 
     public void createPeriodCriteriaNotification(PeriodCriteria periodCriterias){
@@ -282,8 +280,11 @@ public class NotificationService {
         return text;
     }
 
-    public void sendReportEmail() throws MessagingException, IOException {
+    public void sendReportEmail() throws MessagingException, IOException, ValidationException {
         User user = userService.getLoggedUser();
+        if("0".equals(userPreferenceService.getPreferenciaNotificacionByEmail(user.getEmail()).getEmail())){
+            throw new ValidationException("Debe ajustar sus preferencias de notificaciones, para recibir correos electrónicos.");
+        }
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message,true);
         helper.setTo(user.getEmail());

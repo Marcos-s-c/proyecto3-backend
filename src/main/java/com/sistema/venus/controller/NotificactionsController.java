@@ -1,7 +1,5 @@
 package com.sistema.venus.controller;
 
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sistema.venus.domain.Notification;
 import com.sistema.venus.repo.NotificationsRepository;
 import com.sistema.venus.services.NotificationService;
@@ -10,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -68,7 +67,7 @@ public class NotificactionsController {
     }
 
     @GetMapping("sendMonthlyReport")
-    public ResponseEntity<Object> sendMonthlyReport() throws MessagingException, IOException {
+    public ResponseEntity<Object> sendMonthlyReport() throws MessagingException, IOException, ValidationException {
         try {
             notificationsService.sendReportEmail();
             Map<String, Object> map = new HashMap<>();
