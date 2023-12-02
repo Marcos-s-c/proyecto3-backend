@@ -4,6 +4,8 @@ import com.sistema.venus.domain.*;
 import com.sistema.venus.repo.NotificationsRepository;
 import com.sistema.venus.repo.PeriodCriteriaRepository;
 import com.sistema.venus.util.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -43,6 +46,7 @@ public class NotificationService {
     @Autowired
     private UserPreferenceService userPreferenceService;
 
+    Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
     public void createPeriodCriteriaNotification(PeriodCriteria periodCriterias){
 
@@ -280,8 +284,20 @@ public class NotificationService {
         return text;
     }
 
-    public void sendReportEmail() throws MessagingException, IOException, ValidationException {
-        User user = userService.getLoggedUser();
+    @Scheduled(cron = "0 10 23 L * ?")
+    private void sendMonthlyReports(){
+        userService.findAll().forEach(user -> {
+            try{
+                if("1".equals(userPreferenceService.getPreferenciaNotificacionByEmail(user.getEmail()).getEmail())){
+                    sendReportEmail(user);
+                }
+            }catch (Exception e){
+                logger.error(String.format("An error occurred sending report to user %s",user.getEmail()),e);
+            }
+        });
+    }
+
+    public void sendReportEmail(User user) throws MessagingException, IOException, ValidationException {
         if("0".equals(userPreferenceService.getPreferenciaNotificacionByEmail(user.getEmail()).getEmail())){
             throw new ValidationException("Debe ajustar sus preferencias de notificaciones, para recibir correos electrónicos.");
         }

@@ -119,4 +119,8 @@ public class UserService implements UserDetailsService {
         users.forEach(user -> user.setPassword(null));
         return users;
     }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
 }
