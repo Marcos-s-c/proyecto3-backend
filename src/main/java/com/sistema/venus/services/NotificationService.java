@@ -1,22 +1,37 @@
 package com.sistema.venus.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sistema.venus.domain.LoginRequest;
 import com.sistema.venus.domain.Notification;
 import com.sistema.venus.domain.PeriodCriteria;
-import com.sistema.venus.domain.Post;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.repo.NotificationsRepository;
 import com.sistema.venus.repo.PeriodCriteriaRepository;
 import com.sistema.venus.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMailMessage;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -25,9 +40,15 @@ public class NotificationService {
     private NotificationsRepository notificationsRepository;
     @Autowired
     private UserService userService;
-
     @Autowired
     private PeriodCriteriaRepository periodCriteriaRepository;
+    @Value("${temp.folder}")
+    private String tempFolder;
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
 
 
     public void createPeriodCriteriaNotification(PeriodCriteria periodCriterias){
@@ -227,5 +248,32 @@ public class NotificationService {
 
         }
         return text;
+    }
+
+    public void sendReportEmail() throws MessagingException, IOException {
+        User user = userService.getLoggedUser();
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message,true);
+        helper.setTo(user.getEmail());
+        helper.setFrom("venus49117413@gmail.com");
+        helper.setSubject("Venus");
+        helper.setText(String.format("Reporte generado del mes %s", Utils.getDateCurrentTimezone().getMonthValue()));
+        File reportPng = getUserReport(user);
+        helper.addAttachment(String.format("Reporte-%s.png",Utils.getDateCurrentTimezone()),reportPng);
+        javaMailSender.send(message);
+        reportPng.delete();
+    }
+
+    private File getUserReport(User user) throws IOException {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setPassword(user.getPassword());
+        loginRequest.setEmail(user.getEmail());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<LoginRequest> requestHttpEntity = new HttpEntity<>(loginRequest,headers);
+        byte[] bytes =  restTemplate.postForObject("http://localhost:3000/api/getUserDashboardPage", requestHttpEntity, byte[].class);
+        File file = new File(String.format("%s\\Reporte-%s.png",tempFolder, LocalDate.now()));
+        Files.write(file.toPath(),bytes);
+        return file;
     }
 }
