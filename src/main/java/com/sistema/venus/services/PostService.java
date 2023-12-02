@@ -1,10 +1,8 @@
 package com.sistema.venus.services;
 
-import com.ctc.wstx.util.StringUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sistema.venus.domain.Post;
-import com.sistema.venus.domain.User;
 import com.sistema.venus.domain.UserPreferences;
 import com.sistema.venus.repo.PostRepository;
 import com.sistema.venus.util.Utils;
@@ -16,10 +14,8 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

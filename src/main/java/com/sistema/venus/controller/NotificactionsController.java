@@ -1,6 +1,7 @@
 package com.sistema.venus.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sistema.venus.domain.Notification;
 import com.sistema.venus.repo.NotificationsRepository;
 import com.sistema.venus.services.NotificationService;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +58,19 @@ public class NotificactionsController {
     public ResponseEntity<Object> readAll() {
         try {
             notificationsService.readNotifications();
+            Map<String, Object> map = new HashMap<>();
+            map.put("Success",true);
+            return ResponseEntity.ok().body(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @GetMapping("sendMonthlyReport")
+    public ResponseEntity<Object> sendMonthlyReport() throws MessagingException, IOException {
+        try {
+            notificationsService.sendReportEmail();
             Map<String, Object> map = new HashMap<>();
             map.put("Success",true);
             return ResponseEntity.ok().body(map);
