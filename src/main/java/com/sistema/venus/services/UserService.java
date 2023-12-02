@@ -113,4 +113,10 @@ public class UserService implements UserDetailsService {
     public int changeUserStatus(UserStatus body){
         return userRepository.changeUserStatus(body.getUser_id(), body.getActive());
     }
+
+    public List<User> searchUser(String userSearch) {
+        List<User> users = userRepository.findUserByNameEmailOrPhone(userSearch);
+        users.forEach(user -> user.setPassword(null));
+        return users;
+    }
 }

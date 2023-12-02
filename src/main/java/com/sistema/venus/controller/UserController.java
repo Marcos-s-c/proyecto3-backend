@@ -84,8 +84,11 @@ public class UserController {
     }
 
     @GetMapping(value = "/all")
-    public ResponseEntity<List<User>> getAllUsers(){
+    public ResponseEntity<List<User>> getAllUsers(@RequestParam(name = "search", required = false) String userSearch){
         try{
+            if(userSearch != null && !userSearch.isEmpty()){
+                return ResponseEntity.ok(userService.searchUser(userSearch));
+            }
             return ResponseEntity.ok(userService.getAllUsers());
         }catch (Exception e){
             e.printStackTrace();
