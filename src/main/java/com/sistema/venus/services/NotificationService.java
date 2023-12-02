@@ -303,7 +303,7 @@ public class NotificationService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<LoginRequest> requestHttpEntity = new HttpEntity<>(loginRequest,headers);
-        byte[] bytes =  restTemplate.postForObject("http://localhost:3000/api/getUserDashboardPage", requestHttpEntity, byte[].class);
+        byte[] bytes =  restTemplate.postForObject("https://venus-node-app.azurewebsites.net/api/getUserDashboardPage", requestHttpEntity, byte[].class);
         File file = new File(String.format("%s\\Reporte-%s.png",tempFolder, LocalDate.now()));
         Files.write(file.toPath(),bytes);
         return file;
