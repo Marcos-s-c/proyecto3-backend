@@ -9,12 +9,13 @@ import socketpool
 import ssl
 import wifi
 import adafruit_requests as requests
+import random as rnd
 
 socket = socketpool.SocketPool(wifi.radio)
 https = requests.Session(socket, ssl.create_default_context())
 
 print("Connecting...")
-wifi.radio.connect("BaradDur", "L4#r3d#d3#4b4j0")
+wifi.radio.connect("CENFO EXPO", "Expocenfo2023")
 print("Connected to Wifi!")
 
 ib = IdeaBoard()
@@ -32,10 +33,9 @@ while True:
         ib.pixel = AZUL
         login_request = {
             "email": "mmendezr@ucenfotec.ac.cr",
-            "password":"graciela"
+            "password":"test"
         }
         tokenResponse = https.post('https://venus-api.azurewebsites.net/rest/auth/login',json=login_request)
-
         json_token = json.loads(tokenResponse.text)
 
 
@@ -44,7 +44,7 @@ while True:
         }
 
         capturedTemperature = mlx.object_temperature
-        if capturedTemperature<35 or capturedTemperature>42:
+        if capturedTemperature < 35 and capturedTemperature > 42:
             ib.pixel = RED
             print("Invalid Temperature, please try again")
             continue

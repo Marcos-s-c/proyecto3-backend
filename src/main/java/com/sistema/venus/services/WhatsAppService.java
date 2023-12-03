@@ -50,6 +50,27 @@ public class WhatsAppService {
         return message;
     }
 
+    public String sendNextPeriodMessageByEmail(User user) throws JsonProcessingException {
+        String userPhoneNumber = user.getPhone();
+        LocalDate userNextPeriod = periodCriteriaService.calculateDateNextPeriodByEmail(user);
+        UserPreferences userPreferences = notificationRepository.getPreferenciaNotificacionByEmail(user.getEmail());
+        String WAPreference = userPreferences.getWapp();
+        String message = null;
+        if(WAPreference.equals("1")) {
+            if (userNextPeriod != null && userNextPeriod.isAfter(LocalDate.now())) {
+                message = "success";
+                client.sendWAMessage(userPhoneNumber, userNextPeriod.toString(), "next_period");
+            }else{
+                message="success";
+                client.sendWAMessage(userPhoneNumber, "no disponible", "next_period");
+            }
+        }
+        if(WAPreference.equals("0")){
+            message = "noWAPreferenceOn";
+        }
+        return message;
+    }
+
     public String sendNextFertileDaysMessage() throws JsonProcessingException {
         String userPhoneNumber = userService.getLoggedUser().getPhone();
         List<LocalDate> userNextFertileDays = periodCriteriaService.calculateNextFertileDate();
