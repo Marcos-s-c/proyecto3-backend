@@ -40,7 +40,7 @@ public class ScheduleService {
     }
 
    // @Scheduled(fixedRateString = "P1D")  // 1 dia
-//    @Scheduled(fixedRateString = "PT40S", initialDelay = 5000)// diez segundos
+//    @Scheduled(fixedRateString = "PT30S", initialDelay = 5000)// 30 segundos
    @Scheduled(cron = "0 0 8 * * *") // cron job todos los dias 8am
     private void handleNotificeSchedule(){
         LocalDate hoy = LocalDate.now();
@@ -52,18 +52,15 @@ public class ScheduleService {
             LocalDate dateNextPeriod = null;
             List<LocalDate> userNextFertileDays = periodCriteriaService.calculateNextFertileDateByEMailId(user);
             if(periodCriteriaService.calculateDateNextPeriodByEmail(user) == null){
-                dateNextPeriod = hoy.plusDays(4);
+                dateNextPeriod = hoy.plusDays(10);
             }else{
                 dateNextPeriod = periodCriteriaService.calculateDateNextPeriodByEmail(user);
             }
-
-            System.out.println("dateNextPeriod " + dateNextPeriod);
             try{
                 if(dateNextPeriod.minusDays(daysBeforeNotice).equals(hoy)){
+                    System.out.println("match de dias de notificacion");
                     handlePeriodNotificaction(user, userPreference, dateNextPeriod);
                     handleFertileNotice(user, userPreference, userNextFertileDays);
-                }else{
-                    System.out.println("dias notificacion no concuerdan " + userPreference.getEmailId());
                 }
             }catch(Exception e){
                 e.printStackTrace();
@@ -78,6 +75,10 @@ public class ScheduleService {
         Integer sendEmail = Integer.parseInt(pUserPreference.getEmail());
         Integer sendSms = Integer.parseInt(pUserPreference.getSms());
         Integer sendWapp = Integer.parseInt(pUserPreference.getWapp());
+        System.out.println(pUser.getEmail());
+//        if(sendEmail == 1) System.out.println("handlePeriodNotificaction enviar sendEmail - " + smsMessage);
+//        if(sendSms == 1) System.out.println("handlePeriodNotificaction enviar sendSms - " + smsMessage);
+//        if(sendWapp == 1) System.out.println("handlePeriodNotificaction enviar sendWapp - " + smsMessage + "\n");
         if(sendEmail == 1) authService.sendEmailNotice(smsMessage, pUser);
         if(sendSms == 1) smsService.sendMessage(pUser.getPhone(), smsMessage);
         if(sendWapp == 1) whatsAppService.sendNextPeriodMessageByEmailId(pUser);
@@ -87,19 +88,30 @@ public class ScheduleService {
         Integer sendEmail = Integer.parseInt(pUserPreference.getEmail());
         Integer sendSms = Integer.parseInt(pUserPreference.getSms());
         Integer sendWapp = Integer.parseInt(pUserPreference.getWapp());
-        LocalDate date1 = userNextFertileDays.get(0);
-        LocalDate date2 = userNextFertileDays.get(1);
-        String smsMessage = "Venus informa:\n Sus próximos dias fértiles se pronostican entre las siguientes fechas:\n " +"Comienza: "+ date1 + "\n Termina: " + date2;
-        if(sendEmail == 1){
-            if (userNextFertileDays.size() > 1  && userNextFertileDays.get(1).isAfter(LocalDate.now())) {
-                authService.sendEmailNotice(smsMessage, pUser);
-            }else{
-                smsMessage = "Venus informa:\n Próximos dias fértiles no dispinibles";
-                authService.sendEmailNotice(smsMessage, pUser);
+        try {
+            LocalDate date1 = LocalDate.parse("1000-01-01");
+            LocalDate date2 = LocalDate.parse("1000-01-01");
+            if (userNextFertileDays.size() > 1) {
+                date1 = userNextFertileDays.get(0);
+                date2 = userNextFertileDays.get(1);
             }
+            String smsMessage = "Venus informa:\n Sus próximos dias fértiles se pronostican entre las siguientes fechas:\n " +"Comienza: "+ date1 + "\n Termina: " + date2;
+
+            if (userNextFertileDays.size() > 1  && userNextFertileDays.get(1).isAfter(LocalDate.now())) {
+            if(sendEmail == 1) authService.sendEmailNotice(smsMessage, pUser);
+            if(sendSms == 1) smsService.sendMessage(pUser.getPhone(), smsMessage);
+            if(sendWapp == 1) whatsAppService.sendNextFertileDaysMessageByEMailId(pUser);
+            System.out.println(pUser.getEmail());
+//            if(sendEmail == 1) System.out.println("handleFertileNotice enviar sendEmail - " + smsMessage);
+//            if(sendSms == 1) System.out.println("handleFertileNotice enviar sendSms" + smsMessage);
+//            if(sendWapp == 1) System.out.println("handleFertileNotice enviar sendWapp\n" + smsMessage + "\n");
+            }else{
+                System.out.println("no hay proximos dias fertiles");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        if(sendSms == 1) smsService.sendMessage(pUser.getPhone(), smsMessage);
-        if(sendWapp == 1) whatsAppService.sendNextFertileDaysMessageByEMailId(pUser);
+
     }
 
 }
