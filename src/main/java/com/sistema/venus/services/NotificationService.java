@@ -138,7 +138,7 @@ public class NotificationService {
         if(periodCriteria.getValue().equals("fin")){
             long day = 5;
             List<PeriodCriteria> previousCriterias = periodCriteriaRepository.findByUserIdAndDateBetween(user.getUser_id(), periodCriteria.getDate().minusDays(15),periodCriteria.getDate());
-            for (int i = previousCriterias.size()-1; i > 0; i--) {
+            for (int i = previousCriterias.size()-1; i > -1; i--) {
                 if(previousCriterias.get(i).getValue().equals("inicio")){
                     Duration duration = Duration.between(previousCriterias.get(i).getDate().atStartOfDay(), periodCriteria.getDate().atStartOfDay());
                     day = duration.getSeconds() / (24 * 60 * 60);
