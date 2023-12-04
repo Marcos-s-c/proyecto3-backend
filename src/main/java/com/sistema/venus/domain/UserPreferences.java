@@ -19,30 +19,27 @@ public class UserPreferences {
     private String sms;
     private String email;
     private int anticipation_notice;
-    private LocalDate last_sent_notification;
 
     public UserPreferences() {
     }
 
-    public UserPreferences(Long userPreferenceId, String emailId, String wapp, String sms, String email, int anticipation_notice, LocalDate last_sent_notification, Set<Post> likedPosts) {
+    public UserPreferences(Long userPreferenceId, String emailId, String wapp, String sms, String email, int anticipation_notice, Set<Post> likedPosts) {
         this.userPreferenceId = userPreferenceId;
         this.emailId = emailId;
         this.wapp = wapp;
         this.sms = sms;
         this.email = email;
         this.anticipation_notice = anticipation_notice;
-        this.last_sent_notification = last_sent_notification;
         this.likedPosts = likedPosts;
     }
 
-    public UserPreferences(Long userPreferenceId, String emailId, String wapp, String sms, String email, int anticipation_notice, LocalDate last_sent_notification) {
+    public UserPreferences(Long userPreferenceId, String emailId, String wapp, String sms, String email, int anticipation_notice) {
         this.userPreferenceId = userPreferenceId;
         this.emailId = emailId;
         this.wapp = wapp;
         this.sms = sms;
         this.email = email;
         this.anticipation_notice = anticipation_notice;
-        this.last_sent_notification = last_sent_notification;
     }
 
     public UserPreferences(String email){
@@ -62,7 +59,6 @@ public class UserPreferences {
                 ", sms='" + sms + '\'' +
                 ", email='" + email + '\'' +
                 ", anticipation_notice=" + anticipation_notice +
-                ", last_sent_notification=" + last_sent_notification +
                 ", likedPosts=" + likedPosts +
                 '}';
     }
@@ -121,13 +117,5 @@ public class UserPreferences {
 
     public void setAnticipation_notice(int frecuenciaNotificaciones) {
         this.anticipation_notice = frecuenciaNotificaciones;
-    }
-
-    public LocalDate getLast_sent_notification() {
-        return last_sent_notification;
-    }
-
-    public void setLast_sent_notification(LocalDate last_sent_notification) {
-        this.last_sent_notification = last_sent_notification;
     }
 }
