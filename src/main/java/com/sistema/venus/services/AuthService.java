@@ -62,6 +62,25 @@ public class AuthService {
         }
     }
 
+    public ResponseEntity<String> sendEmailNotice(String body, User pUser) {
+        try {
+            Long userId = userService.getIdByEmail(pUser.getEmail());
+            if(userId == null) return ResponseEntity.ok("Success");
+            Otps otps = new Otps();
+            otps.setUser_id(userId);
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(pUser.getEmail());
+//            System.out.println("sendEmailNotice() " + pUser.getEmail());
+//            message.setTo("fretanah@ucenfotec.ac.cr");
+            message.setSubject("Notificación Venus");
+            message.setText(body);
+            javaMailSender.send(message);
+            return ResponseEntity.ok("Success");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     /*public ResponseEntity<String> sendEmailSendGrid(RecuperaContraReqBody body){
         try {
             Email from = new Email("fretanah@ucenfotec.ac.cr");

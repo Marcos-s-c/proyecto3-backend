@@ -6,12 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 public class UserPreferenceService {
 
     @Autowired
     private NotificacionesRepo repo;
+
+    public List<UserPreferences> getAllUserPreferences() {
+        return repo.obtTodasPreferencias();
+    }
+
     @Transactional
     public UserPreferences addPrefNotificacion(UserPreferences n) {
         String emailId = n.getEmailId();

@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface NotificacionesRepo extends JpaRepository<UserPreferences, Integer> {
     @Query("select n from UserPreferences n where n.emailId = :email")
@@ -27,5 +29,12 @@ public interface NotificacionesRepo extends JpaRepository<UserPreferences, Integ
             @Param("emailId") String emailId,
             @Param("anticipation_notice") Integer anticipation_notice
     );
+
+//    @Query("select up from UserPreferences up" )
+//    List<UserPreferences> obtTodasPreferencias();
+//    @Query("select up.userPreferenceId, up.emailId, up.wapp, up.sms, up.email, up.anticipation_notice, up.last_sent_notification from UserPreferences up" )
+//    List<UserPreferences> obtTodasPreferencias();
+    @Query("select new com.sistema.venus.domain.UserPreferences(up.userPreferenceId, up.emailId, up.wapp, up.sms, up.email, up.anticipation_notice, up.last_sent_notification) from UserPreferences up")
+    List<UserPreferences> obtTodasPreferencias();
 
 }
