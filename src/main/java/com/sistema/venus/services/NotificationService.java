@@ -1,23 +1,32 @@
 package com.sistema.venus.services;
 
-import com.sistema.venus.domain.Notification;
-import com.sistema.venus.domain.PeriodCriteria;
-import com.sistema.venus.domain.Post;
-import com.sistema.venus.domain.User;
+import com.sistema.venus.domain.*;
 import com.sistema.venus.repo.NotificationsRepository;
 import com.sistema.venus.repo.PeriodCriteriaRepository;
 import com.sistema.venus.util.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.xml.bind.ValidationException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -26,10 +35,18 @@ public class NotificationService {
     private NotificationsRepository notificationsRepository;
     @Autowired
     private UserService userService;
-
     @Autowired
     private PeriodCriteriaRepository periodCriteriaRepository;
+    @Value("${temp.folder}")
+    private String tempFolder;
+    @Autowired
+    private RestTemplate restTemplate;
+    @Autowired
+    private JavaMailSender javaMailSender;
+    @Autowired
+    private UserPreferenceService userPreferenceService;
 
+    Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
     public void createPeriodCriteriaNotification(PeriodCriteria periodCriterias){
 
@@ -121,7 +138,7 @@ public class NotificationService {
         if(periodCriteria.getValue().equals("fin")){
             long day = 5;
             List<PeriodCriteria> previousCriterias = periodCriteriaRepository.findByUserIdAndDateBetween(user.getUser_id(), periodCriteria.getDate().minusDays(15),periodCriteria.getDate());
-            for (int i = previousCriterias.size()-1; i > 0; i--) {
+            for (int i = previousCriterias.size()-1; i > -1; i--) {
                 if(previousCriterias.get(i).getValue().equals("inicio")){
                     Duration duration = Duration.between(previousCriterias.get(i).getDate().atStartOfDay(), periodCriteria.getDate().atStartOfDay());
                     day = duration.getSeconds() / (24 * 60 * 60);
@@ -265,5 +282,47 @@ public class NotificationService {
 
         }
         return text;
+    }
+
+    @Scheduled(cron = "0 10 23 L * ?")
+    private void sendMonthlyReports(){
+        userService.findAll().forEach(user -> {
+            try{
+                if("1".equals(userPreferenceService.getPreferenciaNotificacionByEmail(user.getEmail()).getEmail())){
+                    sendReportEmail(user);
+                }
+            }catch (Exception e){
+                logger.error(String.format("An error occurred sending report to user %s",user.getEmail()),e);
+            }
+        });
+    }
+
+    public void sendReportEmail(User user) throws MessagingException, IOException, ValidationException {
+        if("0".equals(userPreferenceService.getPreferenciaNotificacionByEmail(user.getEmail()).getEmail())){
+            throw new ValidationException("Debe ajustar sus preferencias de notificaciones, para recibir correos electrónicos.");
+        }
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message,true);
+        helper.setTo(user.getEmail());
+        helper.setFrom("venus49117413@gmail.com");
+        helper.setSubject("Venus");
+        helper.setText(String.format("Reporte generado del mes %s", Utils.getDateCurrentTimezone().getMonthValue()));
+        File reportPng = getUserReport(user);
+        helper.addAttachment(String.format("Reporte-%s.png",Utils.getDateCurrentTimezone()),reportPng);
+        javaMailSender.send(message);
+        reportPng.delete();
+    }
+
+    private File getUserReport(User user) throws IOException {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setPassword(user.getPassword());
+        loginRequest.setEmail(user.getEmail());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<LoginRequest> requestHttpEntity = new HttpEntity<>(loginRequest,headers);
+        byte[] bytes =  restTemplate.postForObject("https://venus-node-app.azurewebsites.net/api/getUserDashboardPage", requestHttpEntity, byte[].class);
+        File file = new File(String.format("%s\\Reporte-%s.png",tempFolder, LocalDate.now()));
+        Files.write(file.toPath(),bytes);
+        return file;
     }
 }
