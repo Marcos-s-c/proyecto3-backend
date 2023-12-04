@@ -104,7 +104,7 @@ public class UserService implements UserDetailsService {
     }
 
     public List<User> getAllUsers(){
-        List<User> users = userRepository.findAll();
+        List<User> users = userRepository.findUsers();
         users.forEach(user -> user.setPassword(null));
         return users;
     }
