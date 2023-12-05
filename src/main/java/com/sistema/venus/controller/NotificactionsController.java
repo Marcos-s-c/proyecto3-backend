@@ -1,8 +1,8 @@
 package com.sistema.venus.controller;
 
+import com.sistema.venus.domain.GoogleService;
 import com.sistema.venus.domain.Notification;
 import com.sistema.venus.domain.User;
-import com.sistema.venus.repo.NotificationsRepository;
 import com.sistema.venus.services.NotificationService;
 import com.sistema.venus.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.mail.MessagingException;
 import javax.xml.bind.ValidationException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,8 @@ public class NotificactionsController {
 
     @Autowired
     private NotificationService notificationsService;
+    @Autowired
+    private GoogleService googleService;
 
     @GetMapping("getAllPosts")
     public List<Notification> getAllNotifications() {
@@ -63,4 +67,20 @@ public class NotificactionsController {
             throw e;
         }
     }
+
+
+    @GetMapping("syncGoogleCalendar")
+    public ResponseEntity<Object> syncGoogleCalendar() throws IOException, GeneralSecurityException, URISyntaxException {
+        try {
+            User user = userService.getLoggedUser();
+            googleService.syncCalendarEvents(user);
+            Map<String, Object> map = new HashMap<>();
+            map.put("Success",true);
+            return ResponseEntity.ok().body(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
 }
