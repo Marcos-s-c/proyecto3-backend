@@ -93,7 +93,7 @@ public class NotificationService {
         String text = createNotificationFlujo(periodCriterias.getValue());
         User user = userService.getLoggedUser();
         if(periodCriterias.getFieldName().equals("fluidColor") &&
-                Arrays.asList("gris", "amarillo", "verde", "Otro").contains(periodCriterias.getValue()) &&
+                Arrays.asList("Gris", "Amarillo", "Verde", "Otro").contains(periodCriterias.getValue()) &&
                 notificationsRepository.getNotificationByDateAndTextAndUser_id(Utils.getDateCurrentTimezone(),
                         text,
                         user.getUser_id())  == null)
@@ -115,7 +115,7 @@ public class NotificationService {
         String text = createNotificationColor(periodCriterias.getValue());
         User user = userService.getLoggedUser();
         if(periodCriterias.getFieldName().equals("periodColor") &&
-                Arrays.asList("rojo palido", "anaranjado", "Otro").contains(periodCriterias.getValue())&&
+                Arrays.asList("Rojo pálido", "Anaranjado", "Otro").contains(periodCriterias.getValue())&&
                 notificationsRepository.getNotificationByDateAndTextAndUser_id(Utils.getDateCurrentTimezone(),
                         text,
                         user.getUser_id())  == null){
@@ -135,11 +135,11 @@ public class NotificationService {
 
     private void periodExtension(PeriodCriteria periodCriteria){
         User user = userService.getLoggedUser();
-        if(periodCriteria.getValue().equals("fin")){
+        if(periodCriteria.getValue().equals("Fin")){
             long day = 5;
             List<PeriodCriteria> previousCriterias = periodCriteriaRepository.findByUserIdAndDateBetween(user.getUser_id(), periodCriteria.getDate().minusDays(15),periodCriteria.getDate());
             for (int i = previousCriterias.size()-1; i > -1; i--) {
-                if(previousCriterias.get(i).getValue().equals("inicio")){
+                if(previousCriterias.get(i).getValue().equals("Inicio")){
                     Duration duration = Duration.between(previousCriterias.get(i).getDate().atStartOfDay(), periodCriteria.getDate().atStartOfDay());
                     day = duration.getSeconds() / (24 * 60 * 60);
                     i = 0;
@@ -195,15 +195,15 @@ public class NotificationService {
         LocalDate criteriaDate = periodCriteria.getDate();
         User user = userService.getLoggedUser();
         List<PeriodCriteria> previousCriterias = periodCriteriaRepository.getPeriodCriteriaByUserId(user.getUser_id());
-        if(periodCriteria.getValue().equals("inicio")){
+        if(periodCriteria.getValue().equals("Inicio")){
             for (int i = previousCriterias.size()-1; i > 0 ; i--) {
-                if(previousCriterias.get(i).getValue().equals("inicio") && count < 1){
+                if(previousCriterias.get(i).getValue().equals("Inicio") && count < 1){
                     count ++;
                     criteriaDate = previousCriterias.get(i).getDate();
                     periodDays1 = periodCriteria.getDate().toEpochDay() - previousCriterias.get(i).getDate().toEpochDay();
                     i--;
                 }
-                if(previousCriterias.get(i).getValue().equals("inicio") && count < 2){
+                if(previousCriterias.get(i).getValue().equals("Inicio") && count < 2){
                     count ++;
                     periodDays2 = criteriaDate.toEpochDay() - previousCriterias.get(i).getDate().toEpochDay();
                 }
@@ -242,13 +242,13 @@ public class NotificationService {
     public String createNotificationColor(String color) {
         String text = "";
         switch (color) {
-            case "rojo palido":
+            case "Rojo pálido":
                 text = "Su sangrado fue de color rojo pálido, " +
                         "lo cual puede estar relacionado a la toma de algún anticonceptivo o transtornos hormonales.  " +
                         "Es importante que consulte a su médico de cabecera o ginecólogo de confianza. ";
                 break;
 
-            case "anaranjado":
+            case "Anaranjado":
                 text = "Su sangrado fue de color naranja, lo cual puede estar relacionado infecciones. " +
                         "Es importante que consulte a su médico de cabecera o ginecólogo de confianza. ";
                 break;
@@ -262,16 +262,16 @@ public class NotificationService {
     public String createNotificationFlujo(String color) {
         String text = "";
         switch (color) {
-            case "gris":
+            case "Gris":
                 text = "Su flujo cervical/vaginal fue de color gris, puede ser producto de una vaginosis. " +
                         "Es importante que consulte a su médico de cabecera o ginecólogo de confianza. ";
                 break;
 
-            case "amarillo":
+            case "Amarillo":
                 text = "Su flujo cervical/vaginal fue de color amarillo, puede ser producto de una infección ginecológica. " +
                         "Es importante que consulte a su médico de cabecera o ginecólogo de confianza.";
                 break;
-            case "verde":
+            case "Verde":
                 text = "Su flujo cervical/vaginal fue de color verde, puede ser producto de una infección ginecológica. " +
                         "Es importante que consulte a su médico de cabecera o ginecólogo de confianza.";
                 break;

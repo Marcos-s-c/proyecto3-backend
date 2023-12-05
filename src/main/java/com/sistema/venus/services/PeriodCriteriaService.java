@@ -71,15 +71,15 @@ public class PeriodCriteriaService {
             }
         }else{
             if (periodCriteriaLastEntry != null && !periodCycleValueParameter.equals("NA")) {
-                /**Saving "inicio" or "fin" is not allow before last entry date of "inicio" or "fin"**/
+                /**Saving "Inicio" or "Fin" is not allow before last entry date of "Inicio" or "Fin"**/
                 if (periodDateParameter.isBefore(periodCriteriaLastEntry.getDate())) {
                     message = "No fue posible guardar los datos. La fecha no es válida. Hay ciclos posteriores a esa fecha. ";
                 }
                 /**Saving **/
-                if (periodCriteriaLastEntry.getValue().equals("inicio") && periodCycleValueParameter.equals(periodCriteriaLastEntry.getValue())) {
+                if (periodCriteriaLastEntry.getValue().equals("Inicio") && periodCycleValueParameter.equals(periodCriteriaLastEntry.getValue())) {
                     message += "No fue posible guardar los datos. No hay registro de finalización del ciclo menstrual anterior. ";
                 }
-                if (periodCriteriaLastEntry.getValue().equals("fin") && periodCycleValueParameter.equals(periodCriteriaLastEntry.getValue())) {
+                if (periodCriteriaLastEntry.getValue().equals("Fin") && periodCycleValueParameter.equals(periodCriteriaLastEntry.getValue())) {
                     message += "No fue posible guardar los datos. No hay registro de inicio del ciclo menstrual. ";
                 }
             }
@@ -87,7 +87,7 @@ public class PeriodCriteriaService {
 
         PeriodCriteria periodCycleByDateAndUser = periodCriteriaRepository.getPeriodCycleByDateAndUser(user.getUser_id(), periodDateParameter);
         if(periodCycleValueParameter.equals("NA") && periodCycleByDateAndUser != null &&
-                (periodCycleByDateAndUser.getValue().equals("inicio") || periodCycleByDateAndUser.getValue().equals("fin"))
+                (periodCycleByDateAndUser.getValue().equals("Inicio") || periodCycleByDateAndUser.getValue().equals("Fin"))
                 && !periodCriteriaLastEntry.getDate().equals(periodCycleByDateAndUser.getDate())){
             message += "No fue fue posible guardar los datos, porque la solicitud puede generar inconsistencias. ";
         }
@@ -111,17 +111,17 @@ public class PeriodCriteriaService {
         int totalDays6PeriodCycles = 0;
         Integer periodAverage = null;
         for(int i = 0; i< periodCriteria.size(); i++){
-            if(i==0 && periodCriteria.get(i).getValue().equals("fin")){
+            if(i==0 && periodCriteria.get(i).getValue().equals("Fin")){
                 cyclesCount = cyclesCount+1;
                 endCycle = periodCriteria.get(i).getDate();
             }
-            if(i!=0 && periodCriteria.get(i).getValue().equals("inicio")) {
+            if(i!=0 && periodCriteria.get(i).getValue().equals("Inicio")) {
                 startCycle = periodCriteria.get(i).getDate();
                 totalDays6PeriodCycles = totalDays6PeriodCycles + (int) ChronoUnit.DAYS.between(startCycle, endCycle);
                 endCycle = null;
                 startCycle = null;
             }
-            if(i!=0 && periodCriteria.get(i).getValue().equals("fin")) {
+            if(i!=0 && periodCriteria.get(i).getValue().equals("Fin")) {
                 cyclesCount = cyclesCount+1;
                 endCycle = periodCriteria.get(i).getDate();
             }
@@ -142,7 +142,7 @@ public class PeriodCriteriaService {
         int daysAveragePeriod = 0;
         List<LocalDate> startsCyclesList = new ArrayList<>();
         for(int i = 0; i< periodCriteria.size(); i++){
-            if(periodCriteria.get(i).getValue().equals("inicio")){
+            if(periodCriteria.get(i).getValue().equals("Inicio")){
                 startsCyclesList.add(periodCriteria.get(i).getDate());
             }
         }
@@ -168,7 +168,7 @@ public class PeriodCriteriaService {
         int daysAveragePeriod = 0;
         List<LocalDate> startsCyclesList = new ArrayList<>();
         for(int i = 0; i< periodCriteria.size(); i++){
-            if(periodCriteria.get(i).getValue().equals("inicio")){
+            if(periodCriteria.get(i).getValue().equals("Inicio")){
                 startsCyclesList.add(periodCriteria.get(i).getDate());
             }
         }
@@ -194,7 +194,7 @@ public class PeriodCriteriaService {
         List<LocalDate> startsCyclesList = new ArrayList<>();
         List<Integer> cycleDuration = new ArrayList<>();
         for(int i = 0; i< periodCriteria.size(); i++){
-            if(periodCriteria.get(i).getValue().equals("inicio")){
+            if(periodCriteria.get(i).getValue().equals("Inicio")){
                 startsCyclesList.add(periodCriteria.get(i).getDate());
             }
         }
@@ -223,7 +223,7 @@ public class PeriodCriteriaService {
         List<LocalDate> startsCyclesList = new ArrayList<>();
         List<Integer> cycleDuration = new ArrayList<>();
         for(int i = 0; i< periodCriteria.size(); i++){
-            if(periodCriteria.get(i).getValue().equals("inicio")){
+            if(periodCriteria.get(i).getValue().equals("Inicio")){
                 startsCyclesList.add(periodCriteria.get(i).getDate());
             }
         }
@@ -251,7 +251,7 @@ public class PeriodCriteriaService {
         List<LocalDate> startsCyclesList = new ArrayList<>();
         List<Integer> cycleDuration = new ArrayList<>();
         for(int i = 0; i< periodCriteria.size(); i++){
-            if(periodCriteria.get(i).getValue().equals("inicio")){
+            if(periodCriteria.get(i).getValue().equals("Inicio")){
                 startsCyclesList.add(periodCriteria.get(i).getDate());
             }
         }
@@ -288,13 +288,13 @@ public class PeriodCriteriaService {
         List<LocalDate> fertileRangeDays = new ArrayList<>();
 
         for(int i = 0; i< periodCriteria.size(); i++) {
-            if(i==0 && periodCriteria.get(i).getValue().equals("inicio")){
+            if(i==0 && periodCriteria.get(i).getValue().equals("Inicio")){
                 startCycle = periodCriteria.get(i).getDate();
             }
-            if(startCycle != null && endCycle == null && periodCriteria.get(i).getValue().equals("fin")){
+            if(startCycle != null && endCycle == null && periodCriteria.get(i).getValue().equals("Fin")){
                 endCycle = periodCriteria.get(i).getDate();
             }
-            if(startCycle == null && periodCriteria.get(i).getValue().equals("inicio")){
+            if(startCycle == null && periodCriteria.get(i).getValue().equals("Inicio")){
                 startCycle = periodCriteria.get(i).getDate();
             }
         }
@@ -349,13 +349,13 @@ public class PeriodCriteriaService {
         List<LocalDate> fertileRangeDays = new ArrayList<>();
 
         for(int i = 0; i< periodCriteria.size(); i++) {
-            if(i==0 && periodCriteria.get(i).getValue().equals("inicio")){
+            if(i==0 && periodCriteria.get(i).getValue().equals("Inicio")){
                 startCycle = periodCriteria.get(i).getDate();
             }
-            if(startCycle != null && endCycle == null && periodCriteria.get(i).getValue().equals("fin")){
+            if(startCycle != null && endCycle == null && periodCriteria.get(i).getValue().equals("Fin")){
                 endCycle = periodCriteria.get(i).getDate();
             }
-            if(startCycle == null && periodCriteria.get(i).getValue().equals("inicio")){
+            if(startCycle == null && periodCriteria.get(i).getValue().equals("Inicio")){
                 startCycle = periodCriteria.get(i).getDate();
             }
         }
