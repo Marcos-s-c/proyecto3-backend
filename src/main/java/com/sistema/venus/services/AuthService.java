@@ -64,7 +64,8 @@ public class AuthService {
 
     public ResponseEntity<String> sendEmailNotice(String body, User pUser) {
         try {
-            Long userId = userService.getIdByEmail(pUser.getEmail());
+            Long userId = userService.getIdByEmail("fretanah@ucenfotec.ac.cr");
+//            Long userId = userService.getIdByEmail(pUser.getEmail());
             if(userId == null) return ResponseEntity.ok("Success");
             Otps otps = new Otps();
             otps.setUser_id(userId);

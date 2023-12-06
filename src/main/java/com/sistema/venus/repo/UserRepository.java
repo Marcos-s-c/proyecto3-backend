@@ -16,6 +16,9 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User,Long> {
     User findUserByEmail(String username);
 
+    @Query("Select u from User u where TRIM(u.email) = TRIM(:email)")
+    User findUserByEmailQuery(@Param("email") String email);
+
     @Query("SELECT u.user_id FROM User u WHERE u.email = :email")
     Long findIdByEmail(@Param("email") String email);
 

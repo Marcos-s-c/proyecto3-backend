@@ -54,7 +54,14 @@ public class UserService implements UserDetailsService {
     }
 
     public User findUserByEmail(String email){
-        return userRepository.findUserByEmail(email);
+        try{
+            User user = userRepository.findUserByEmailQuery(email.toLowerCase().trim());
+            return user;
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return new User();
     }
 
     public void actualizar(User user) {
