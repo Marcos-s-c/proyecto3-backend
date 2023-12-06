@@ -32,6 +32,9 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Query("UPDATE User u SET u.active = :active WHERE u.user_id = :user_id")
     int changeUserStatus(@Param("user_id") Long user_id, @Param("active") Boolean active);
 
-    @Query("SELECT u FROM User u WHERE u.name like %:userSearch% or u.email like %:userSearch% or u.phone like %:userSearch%")
+    @Query("SELECT u FROM User u WHERE (u.name like %:userSearch% or u.email like %:userSearch% or u.phone like %:userSearch%) and u.rol = 'USER'")
     List<User> findUserByNameEmailOrPhone (@Param("userSearch") String userSearch);
+
+    @Query("SELECT u FROM User u WHERE  u.rol = 'USER'")
+    List<User> findUsers ();
 }

@@ -34,7 +34,7 @@ public interface NotificacionesRepo extends JpaRepository<UserPreferences, Integ
 //    List<UserPreferences> obtTodasPreferencias();
 //    @Query("select up.userPreferenceId, up.emailId, up.wapp, up.sms, up.email, up.anticipation_notice, up.last_sent_notification from UserPreferences up" )
 //    List<UserPreferences> obtTodasPreferencias();
-    @Query("select new com.sistema.venus.domain.UserPreferences(up.userPreferenceId, up.emailId, up.wapp, up.sms, up.email, up.anticipation_notice, up.last_sent_notification) from UserPreferences up")
+    @Query("select new com.sistema.venus.domain.UserPreferences(up.userPreferenceId, up.emailId, up.wapp, up.sms, up.email, up.anticipation_notice) from UserPreferences up")
     List<UserPreferences> obtTodasPreferencias();
 
 }
