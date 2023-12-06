@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class WhatsAppService {
@@ -32,7 +35,7 @@ public class WhatsAppService {
         if(WAPreference.equals("1")) {
             if (userNextPeriod != null && userNextPeriod.isAfter(LocalDate.now())) {
                 message = "success";
-                client.sendWAMessage(userPhoneNumber, userNextPeriod.toString(), "next_period");
+                client.sendWAMessage(userPhoneNumber, userNextPeriod.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(new Locale("es", "ES"))), "next_period");
             }else{
                 message="success";
                 client.sendWAMessage(userPhoneNumber, "no disponible", "next_period");
@@ -73,8 +76,8 @@ public class WhatsAppService {
         String message = null;
         if(WAPreference.equals("1")) {
             if (userNextFertileDays.size() > 1  && userNextFertileDays.get(1).isAfter(LocalDate.now())) {
-                LocalDate date1 = userNextFertileDays.get(0);
-                LocalDate date2 = userNextFertileDays.get(1);
+                String date1 = userNextFertileDays.get(0).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(new Locale("es", "ES")));
+                String date2 = userNextFertileDays.get(1).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(new Locale("es", "ES")));
                 message = "success";
                 client.sendWAMessage(userPhoneNumber, date1 + " - " + date2, "next_fertile_days");
             }else{
