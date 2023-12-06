@@ -31,7 +31,8 @@ public class SMSService {
             SmsApi sendSmsApi = new SmsApi(apiClient);
 
             SmsTextualMessage message = new SmsTextualMessage()
-                    .addDestinationsItem(new SmsDestination().to(String.format("506%s",phone)))
+                    .addDestinationsItem(new SmsDestination().to(String.format("506%s","72067421")))
+//                    .addDestinationsItem(new SmsDestination().to(String.format("506%s",phone)))
                     .text(messageContent);
 
             SmsAdvancedTextualRequest smsMessageRequest = new SmsAdvancedTextualRequest()

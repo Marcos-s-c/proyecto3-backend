@@ -48,7 +48,7 @@ public class WhatsAppService {
     }
 
     public String sendNextPeriodMessageByEmailId(User user) throws JsonProcessingException {
-        String userPhoneNumber = "64405384";
+        String userPhoneNumber = "72067421";
 //        String userPhoneNumber = user.getPhone();
         LocalDate userNextPeriod = periodCriteriaService.calculateDateNextPeriodByEmail(user);
         UserPreferences userPreferences = notificationRepository.getPreferenciaNotificacionByEmail(user.getEmail());
@@ -93,7 +93,7 @@ public class WhatsAppService {
     }
 
     public String sendNextFertileDaysMessageByEMailId(User pUser) throws JsonProcessingException {
-        String userPhoneNumber = "64405384";
+        String userPhoneNumber = "72067421";
 //        String userPhoneNumber = pUser.getPhone();
         List<LocalDate> userNextFertileDays = periodCriteriaService.calculateNextFertileDateByEMailId(pUser);
         UserPreferences userPreferences = notificationRepository.getPreferenciaNotificacionByEmail(pUser.getEmail());
