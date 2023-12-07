@@ -69,9 +69,9 @@ public class AuthService {
             Otps otps = new Otps();
             otps.setUser_id(userId);
             SimpleMailMessage message = new SimpleMailMessage();
-//            message.setTo(pUser.getEmail());
+            message.setTo(pUser.getEmail());
 //            System.out.println("sendEmailNotice() " + pUser.getEmail());
-            message.setTo("dhuertasg@ucenfotec.ac.cr");
+//            message.setTo("dhuertasg@ucenfotec.ac.cr");
             message.setSubject("Notificación Venus");
             message.setText(body);
             javaMailSender.send(message);

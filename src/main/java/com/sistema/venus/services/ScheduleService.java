@@ -40,7 +40,7 @@ public class ScheduleService {
 
    // @Scheduled(fixedRateString = "P1D")  // 1 dia
 //    @Scheduled(fixedRateString = "PT30S", initialDelay = 000)// 30 segundos
-   @Scheduled(cron = "0 00 7 * * *") // cron job todos los dias 8am
+   @Scheduled(cron = "0 0 7 * * *") // cron job todos los dias 8am
     private void handleNotificeSchedule(){
         LocalDate hoy = LocalDate.now();
         getAllUsersPreferences();

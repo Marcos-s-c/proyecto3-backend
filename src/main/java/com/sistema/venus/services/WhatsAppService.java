@@ -48,8 +48,8 @@ public class WhatsAppService {
     }
 
     public String sendNextPeriodMessageByEmailId(User user) throws JsonProcessingException {
-        String userPhoneNumber = "72067421";
-//        String userPhoneNumber = user.getPhone();
+//        String userPhoneNumber = "72067421";
+        String userPhoneNumber = user.getPhone();
         LocalDate userNextPeriod = periodCriteriaService.calculateDateNextPeriodByEmail(user);
         UserPreferences userPreferences = notificationRepository.getPreferenciaNotificacionByEmail(user.getEmail());
         String WAPreference = userPreferences.getWapp();
