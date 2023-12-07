@@ -71,9 +71,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.google.oauth-client</groupId>
-			<artifactId>google-oauth-client-jetty</artifactId>
-			<version>1.22.0</version>
+			<groupId>com.google.auth</groupId>
+			<artifactId>google-auth-library-oauth2-http</artifactId>
+			<version>0.6.1</version>
+		</dependency>
+		<!-- Thanks for using https://jar-download.com -->
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-resource-server</artifactId>
 		</dependency>
 
 		<dependency>

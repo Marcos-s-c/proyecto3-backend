@@ -1,6 +1,6 @@
 package com.sistema.venus.controller;
 
-import com.sistema.venus.domain.GoogleService;
+import com.sistema.venus.services.GoogleService;
 import com.sistema.venus.domain.Notification;
 import com.sistema.venus.domain.User;
 import com.sistema.venus.services.NotificationService;
@@ -25,7 +25,6 @@ public class NotificactionsController {
 
     @Autowired
     private UserService userService;
-
     @Autowired
     private NotificationService notificationsService;
     @Autowired
